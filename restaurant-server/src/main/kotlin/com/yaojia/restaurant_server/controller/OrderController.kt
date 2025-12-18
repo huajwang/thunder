@@ -79,6 +79,9 @@ class OrderController(
                 tableId = order.tableId,
                 customerId = order.customerId,
                 status = order.status.name,
+                subTotal = order.subTotal,
+                tax = order.tax,
+                discount = order.discount,
                 totalAmount = order.totalAmount,
                 createdAt = order.createdAt,
                 updatedAt = order.updatedAt,
@@ -139,13 +142,13 @@ class OrderController(
             .associateBy { it.id }
 
         // 2. Calculate total and validate items
-        var totalAmount = BigDecimal.ZERO
+        var subTotal = BigDecimal.ZERO
         val orderItemsToSave = request.items.map { itemRequest ->
             val menuItem = menuItems[itemRequest.menuItemId]
                 ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Menu item not found: ${itemRequest.menuItemId}")
             
             val lineTotal = menuItem.price.multiply(BigDecimal(itemRequest.quantity))
-            totalAmount = totalAmount.add(lineTotal)
+            subTotal = subTotal.add(lineTotal)
 
             OrderItem(
                 orderId = 0, // Will be updated after saving order
@@ -155,12 +158,28 @@ class OrderController(
             )
         }
 
+        // Calculate discount and tax
+        val discount = if (request.customerId != null) {
+            // Simple check: if customerId is present, apply 10% discount.
+            // In a real app, we should verify membership status from DB.
+            subTotal.multiply(BigDecimal("0.10"))
+        } else {
+            BigDecimal.ZERO
+        }
+
+        val taxableAmount = subTotal.subtract(discount)
+        val tax = taxableAmount.multiply(BigDecimal("0.13"))
+        val totalAmount = taxableAmount.add(tax)
+
         // 3. Save Order
         val savedOrder = orderRepository.save(
             Order(
                 restaurantId = request.restaurantId,
                 tableId = request.tableId,
                 customerId = request.customerId,
+                subTotal = subTotal,
+                tax = tax,
+                discount = discount,
                 totalAmount = totalAmount,
                 status = OrderStatus.PENDING
             )

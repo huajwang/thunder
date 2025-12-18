@@ -57,6 +57,9 @@ export interface OrderDetails {
   tableId?: number;
   customerId?: number;
   status: string;
+  subTotal: number;
+  tax: number;
+  discount: number;
   totalAmount: number;
   createdAt: string;
   updatedAt: string;

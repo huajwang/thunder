@@ -45,6 +45,10 @@ import { OrderDetails } from '../../core/models/restaurant.types';
                 <span>-\${{ discount().toFixed(2) }}</span>
               </div>
             }
+            <div class="summary-row">
+              <span>Tax (13%):</span>
+              <span>\${{ tax().toFixed(2) }}</span>
+            </div>
             <div class="summary-row total">
               <span>Total Amount:</span>
               <span class="total-price">\${{ totalAmount().toFixed(2) }}</span>
@@ -126,6 +130,7 @@ export class BillDialogComponent implements OnInit {
   loading = signal(true);
   subtotal = signal(0);
   discount = signal(0);
+  tax = signal(0);
   totalAmount = signal(0);
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { tableId: number, tableNumber: number }) {}
@@ -134,21 +139,17 @@ export class BillDialogComponent implements OnInit {
     this.restaurantService.getTableBill(this.data.tableId).subscribe({
       next: (orders) => {
         this.orders.set(orders);
-        const sub = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        
+        // Sum up values from all orders
+        const sub = orders.reduce((sum, order) => sum + order.subTotal, 0);
+        const disc = orders.reduce((sum, order) => sum + order.discount, 0);
+        const tx = orders.reduce((sum, order) => sum + order.tax, 0);
+        const total = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+
         this.subtotal.set(sub);
-        
-        // Check if any order has a customer attached (assuming if one does, the whole table gets discount for now, 
-        // or we calculate per order. Let's calculate per order if we want to be precise, 
-        // but usually table bill is unified. 
-        // Let's check if ANY order has a customerId, apply 10% to the whole bill for simplicity 
-        // or just to the orders that have it.
-        // The backend doesn't return customerId in OrderDetails yet? I added it to DTO.
-        
-        const hasMember = orders.some(o => !!o.customerId);
-        const disc = hasMember ? sub * 0.10 : 0;
-        
         this.discount.set(disc);
-        this.totalAmount.set(sub - disc);
+        this.tax.set(tx);
+        this.totalAmount.set(total);
         
         this.loading.set(false);
       },

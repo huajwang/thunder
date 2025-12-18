@@ -14,6 +14,9 @@ data class Order(
     val customerId: Long? = null,
     val customerName: String? = null,
     val status: OrderStatus = OrderStatus.PENDING,
+    val subTotal: BigDecimal,
+    val tax: BigDecimal,
+    val discount: BigDecimal,
     val totalAmount: BigDecimal,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
