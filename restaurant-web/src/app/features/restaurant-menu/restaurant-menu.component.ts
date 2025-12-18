@@ -26,6 +26,7 @@ export class RestaurantMenuComponent implements OnInit {
 
   restaurant = signal<Restaurant | null>(null);
   categories = signal<Category[]>([]);
+  selectedCategory = signal<Category | null>(null);
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
   currentTable = signal<number | null>(null);
@@ -43,6 +44,9 @@ export class RestaurantMenuComponent implements OnInit {
       next: (data) => {
         this.restaurant.set(data.restaurant);
         this.categories.set(data.categories);
+        if (data.categories.length > 0) {
+          this.selectedCategory.set(data.categories[0]);
+        }
         this.loading.set(false);
         
         // Set context for CartService
@@ -58,6 +62,10 @@ export class RestaurantMenuComponent implements OnInit {
 
   addToOrder(item: MenuItem) {
     this.cartService.addToCart(item);
+  }
+
+  selectCategory(category: Category) {
+    this.selectedCategory.set(category);
   }
 }
 

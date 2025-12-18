@@ -10,11 +10,24 @@
   }
 
 
-  <div class="menu-content">
-    @for (category of categories(); track category.id) {
-      <section class="category-section">
-        <h2 class="category-title">{{ category.name }}</h2>
-        
+  <div class="menu-layout">
+    <!-- Sidebar -->
+    <aside class="category-sidebar">
+      <h2 class="sidebar-title">Categories</h2>
+      <ul class="category-list">
+        @for (category of categories(); track category.id) {
+          <li 
+            [class.active]="selectedCategory()?.id === category.id"
+            (click)="selectCategory(category)">
+            {{ category.name }}
+          </li>
+        }
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="items-content">
+      @if (selectedCategory(); as category) {
         <div class="items-grid">
           @for (item of category.items; track item.id) {
             <div class="menu-item-card">
@@ -29,7 +42,7 @@
             </div>
           }
         </div>
-      </section>
-    }
+      }
+    </main>
   </div>
 </div>
