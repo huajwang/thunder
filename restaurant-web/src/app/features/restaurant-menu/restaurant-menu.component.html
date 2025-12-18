@@ -1,0 +1,31 @@
+<div class="container">
+  @if (restaurant(); as rest) {
+    <header class="restaurant-header">
+      <h1>{{ rest.name }}</h1>
+      <p>{{ rest.description }}</p>
+    </header>
+  }
+
+  <div class="menu-content">
+    @for (category of categories(); track category.id) {
+      <section class="category-section">
+        <h2 class="category-title">{{ category.name }}</h2>
+        
+        <div class="items-grid">
+          @for (item of category.items; track item.id) {
+            <div class="menu-item-card">
+              <div class="item-details">
+                <h3>{{ item.name }}</h3>
+                <p class="item-desc">{{ item.description }}</p>
+                <span class="item-price">\${{ item.price.toFixed(2) }}</span>
+              </div>
+              <button class="add-btn" (click)="addToOrder(item)">
+                +
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+  </div>
+</div>
