@@ -6,13 +6,11 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { CartService } from '../../core/services/cart.service';
 import { Category, MenuItem, Restaurant } from '../../core/models/restaurant.types';
-import { CartDialogComponent } from '../cart-dialog/cart-dialog.component';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-restaurant-menu',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule, MatDialogModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule],
   templateUrl: './restaurant-menu.component.html',
   styleUrl: './restaurant-menu.component.css'
 })
@@ -22,7 +20,6 @@ export class RestaurantMenuComponent implements OnInit {
 
   private restaurantService = inject(RestaurantService);
   cartService = inject(CartService);
-  private dialog = inject(MatDialog);
 
   restaurant = signal<Restaurant | null>(null);
   categories = signal<Category[]>([]);

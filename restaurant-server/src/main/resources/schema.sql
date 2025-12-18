@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS restaurant_tables;
 DROP TABLE IF EXISTS menu_items;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS customers;
 DROP TABLE IF EXISTS restaurants;
 
 -- Restaurants Table
@@ -58,18 +59,33 @@ CREATE TABLE IF NOT EXISTS restaurant_tables (
     UNIQUE KEY unique_table_per_restaurant (restaurant_id, table_number)
 );
 
+-- Customers Table
+CREATE TABLE IF NOT EXISTS customers (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    restaurant_id BIGINT NOT NULL,
+    phone_number VARCHAR(50) NOT NULL,
+    is_member BOOLEAN DEFAULT FALSE,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_phone_per_restaurant (restaurant_id, phone_number),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+);
+
 -- Orders Table
 CREATE TABLE IF NOT EXISTS orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     restaurant_id BIGINT NOT NULL,
     table_id BIGINT,
+    customer_id BIGINT,
     customer_name VARCHAR(255),
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING', -- PENDING, PREPARING, READY, COMPLETED, CANCELLED
     total_amount DECIMAL(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id),
-    FOREIGN KEY (table_id) REFERENCES restaurant_tables(id) ON DELETE SET NULL
+    FOREIGN KEY (table_id) REFERENCES restaurant_tables(id) ON DELETE SET NULL,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE SET NULL
 );
 
 
@@ -95,3 +111,8 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
 );
+
+-- Add customer_id to orders
+-- Note: In a real migration we would use ALTER TABLE, but for this dev setup we might need to drop/recreate or just run ALTER if it exists.
+-- Since we drop tables at the top of schema.sql, we can just add the column to the CREATE definition of orders.
+

@@ -35,8 +35,20 @@ import { OrderDetails } from '../../core/models/restaurant.types';
           }
           
           <div class="total-section">
-            <span>Total Amount:</span>
-            <span class="total-price">\${{ totalAmount().toFixed(2) }}</span>
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span>\${{ subtotal().toFixed(2) }}</span>
+            </div>
+            @if (discount() > 0) {
+              <div class="summary-row discount">
+                <span>Member Discount (10%):</span>
+                <span>-\${{ discount().toFixed(2) }}</span>
+              </div>
+            }
+            <div class="summary-row total">
+              <span>Total Amount:</span>
+              <span class="total-price">\${{ totalAmount().toFixed(2) }}</span>
+            </div>
           </div>
         </div>
       }
@@ -87,13 +99,22 @@ import { OrderDetails } from '../../core/models/restaurant.types';
       font-size: 0.95rem;
     }
     .total-section {
-      display: flex;
-      justify-content: space-between;
-      font-size: 1.2rem;
-      font-weight: bold;
       margin-top: 20px;
       padding-top: 10px;
       border-top: 2px solid #333;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+    .summary-row.discount {
+      color: #2e7d32;
+    }
+    .summary-row.total {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-top: 10px;
     }
   `]
 })
@@ -103,6 +124,8 @@ export class BillDialogComponent implements OnInit {
   
   orders = signal<OrderDetails[]>([]);
   loading = signal(true);
+  subtotal = signal(0);
+  discount = signal(0);
   totalAmount = signal(0);
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { tableId: number, tableNumber: number }) {}
@@ -111,8 +134,22 @@ export class BillDialogComponent implements OnInit {
     this.restaurantService.getTableBill(this.data.tableId).subscribe({
       next: (orders) => {
         this.orders.set(orders);
-        const total = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-        this.totalAmount.set(total);
+        const sub = orders.reduce((sum, order) => sum + order.totalAmount, 0);
+        this.subtotal.set(sub);
+        
+        // Check if any order has a customer attached (assuming if one does, the whole table gets discount for now, 
+        // or we calculate per order. Let's calculate per order if we want to be precise, 
+        // but usually table bill is unified. 
+        // Let's check if ANY order has a customerId, apply 10% to the whole bill for simplicity 
+        // or just to the orders that have it.
+        // The backend doesn't return customerId in OrderDetails yet? I added it to DTO.
+        
+        const hasMember = orders.some(o => !!o.customerId);
+        const disc = hasMember ? sub * 0.10 : 0;
+        
+        this.discount.set(disc);
+        this.totalAmount.set(sub - disc);
+        
         this.loading.set(false);
       },
       error: () => this.loading.set(false)

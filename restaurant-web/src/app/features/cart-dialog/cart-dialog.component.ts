@@ -50,6 +50,7 @@ export class CartDialogComponent {
     const orderRequest: OrderRequest = {
       restaurantId: this.data.restaurantId,
       tableId: this.data.tableId,
+      customerId: this.cartService.customerId() || undefined,
       items: this.cartService.items().map(item => ({
         menuItemId: item.menuItem.id,
         quantity: item.quantity

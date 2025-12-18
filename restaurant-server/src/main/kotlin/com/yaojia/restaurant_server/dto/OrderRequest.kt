@@ -3,6 +3,7 @@ package com.yaojia.restaurant_server.dto
 data class OrderRequest(
     val restaurantId: Long,
     val tableId: Long?,
+    val customerId: Long? = null,
     val items: List<OrderItemRequest>
 )
 

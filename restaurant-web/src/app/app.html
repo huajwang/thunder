@@ -15,6 +15,23 @@
       <mat-icon>info</mat-icon>
       <span>About Us</span>
     </button>
+
+    @if (cartService.restaurantId()) {
+      @if (cartService.customerInfo(); as customer) {
+        <button mat-menu-item>
+          <mat-icon>verified_user</mat-icon>
+          <span>{{ customer.phoneNumber }}</span>
+          @if (customer.isMember) {
+             (VIP)
+          }
+        </button>
+      } @else {
+        <button mat-menu-item (click)="openMemberLogin()">
+          <mat-icon>login</mat-icon>
+          <span>Member Login</span>
+        </button>
+      }
+    }
   </mat-menu>
 
   <span class="spacer"></span>

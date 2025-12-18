@@ -58,6 +58,10 @@ export class RestaurantService {
     return this.http.get<OrderDetails[]>(`${this.API_URL}/tables/${tableId}/bill`);
   }
 
+  applyMember(tableId: number, customerId: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/tables/${tableId}/apply-member`, { customerId });
+  }
+
   checkoutTable(tableId: number): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/tables/${tableId}/checkout`, {});
   }

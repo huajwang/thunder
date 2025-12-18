@@ -4,20 +4,27 @@ import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { OrderDetails } from '../../core/models/restaurant.types';
+import { MemberEnrollDialogComponent } from '../customer/member-enroll-dialog.component';
 
 @Component({
   selector: 'app-staff',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatDialogModule],
   template: `
     <div class="staff-container">
       <header class="staff-header">
         <h1>Service Station</h1>
-        <button mat-raised-button color="primary" (click)="refreshOrders()">
-          <mat-icon>refresh</mat-icon> Refresh
-        </button>
+        <div class="header-actions">
+          <button mat-raised-button color="accent" (click)="openEnrollDialog()">
+            <mat-icon>person_add</mat-icon> Enroll Member
+          </button>
+          <button mat-raised-button color="primary" (click)="refreshOrders()">
+            <mat-icon>refresh</mat-icon> Refresh
+          </button>
+        </div>
       </header>
 
       <div class="orders-grid">
@@ -69,6 +76,10 @@ import { OrderDetails } from '../../core/models/restaurant.types';
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+    }
+    .header-actions {
+      display: flex;
+      gap: 10px;
     }
     .orders-grid {
       display: grid;
@@ -123,6 +134,7 @@ import { OrderDetails } from '../../core/models/restaurant.types';
 export class StaffComponent implements OnInit {
   private restaurantService = inject(RestaurantService);
   private route = inject(ActivatedRoute);
+  private dialog = inject(MatDialog);
   
   restaurantId: number | null = null;
   readyOrders = signal<OrderDetails[]>([]);
@@ -162,5 +174,14 @@ export class StaffComponent implements OnInit {
     this.restaurantService.updateOrderStatus(orderId, 'COMPLETED').subscribe(() => {
       this.refreshOrders();
     });
+  }
+
+  openEnrollDialog() {
+    if (!this.restaurantId) return;
+    
+    const dialogRef = this.dialog.open(MemberEnrollDialogComponent, {
+      width: '400px'
+    });
+    dialogRef.componentInstance.restaurantId = this.restaurantId;
   }
 }

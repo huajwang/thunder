@@ -34,6 +34,7 @@ export interface OrderItemRequest {
 export interface OrderRequest {
   restaurantId: number;
   tableId?: number;
+  customerId?: number;
   items: OrderItemRequest[];
 }
 
@@ -54,11 +55,19 @@ export interface OrderDetails {
   id: number;
   restaurantId: number;
   tableId?: number;
+  customerId?: number;
   status: string;
   totalAmount: number;
   createdAt: string;
   updatedAt: string;
   items: OrderItemDto[];
+}
+
+export interface Customer {
+  id: number;
+  restaurantId: number;
+  phoneNumber: string;
+  isMember: boolean;
 }
 
 export interface RestaurantTable {

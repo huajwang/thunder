@@ -7,6 +7,7 @@ data class OrderDetailsDto(
     val id: Long,
     val restaurantId: Long,
     val tableId: Long?,
+    val customerId: Long? = null,
     val status: String,
     val totalAmount: BigDecimal,
     val createdAt: LocalDateTime,

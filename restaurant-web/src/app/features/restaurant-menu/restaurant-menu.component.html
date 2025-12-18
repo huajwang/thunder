@@ -1,11 +1,17 @@
 <div class="container">
   @if (restaurant(); as rest) {
     <header class="restaurant-header">
-      <h1>{{ rest.name }}</h1>
-      <p>{{ rest.description }}</p>
-      @if (currentTable(); as table) {
-        <div class="table-badge">Table #{{ table }}</div>
-      }
+      <div class="header-content">
+        <div>
+          <h1>{{ rest.name }}</h1>
+          <p>{{ rest.description }}</p>
+        </div>
+        <div class="header-actions">
+          @if (currentTable(); as table) {
+            <div class="table-badge">Table #{{ table }}</div>
+          }
+        </div>
+      </div>
     </header>
   }
 

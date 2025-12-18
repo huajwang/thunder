@@ -15,6 +15,8 @@ export class CartService {
   restaurantId = signal<number | null>(null);
   restaurantName = signal<string | null>(null);
   tableId = signal<number | null>(null);
+  customerId = signal<number | null>(null);
+  customerInfo = signal<{phoneNumber: string, isMember: boolean} | null>(null);
 
   // Computed values
   readonly items = this.cartItems.asReadonly();
@@ -64,11 +66,19 @@ export class CartService {
     this.cartItems.set([]);
   }
 
-  setContext(restaurantId: number, restaurantName: string, tableId?: number | null) {
+  setContext(restaurantId: number, restaurantName: string, tableId?: number | null, customerId?: number | null) {
     this.restaurantId.set(restaurantId);
     this.restaurantName.set(restaurantName);
     if (tableId !== undefined) {
       this.tableId.set(tableId);
     }
+    if (customerId !== undefined) {
+      this.customerId.set(customerId);
+    }
+  }
+
+  setCustomer(id: number, phoneNumber: string, isMember: boolean) {
+    this.customerId.set(id);
+    this.customerInfo.set({ phoneNumber, isMember });
   }
 }

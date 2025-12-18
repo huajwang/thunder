@@ -8,6 +8,7 @@ import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.OrderItemRepository
 import com.yaojia.restaurant_server.repo.OrderRepository
 import com.yaojia.restaurant_server.repo.RestaurantTableRepository
+import com.yaojia.restaurant_server.repo.CustomerRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.HttpStatus
@@ -23,7 +24,8 @@ class TableController(
     private val restaurantTableRepository: RestaurantTableRepository,
     private val orderRepository: OrderRepository,
     private val orderItemRepository: OrderItemRepository,
-    private val menuItemRepository: MenuItemRepository
+    private val menuItemRepository: MenuItemRepository,
+    private val customerRepository: CustomerRepository
 ) {
 
     @GetMapping
@@ -65,6 +67,7 @@ class TableController(
                 id = order.id!!,
                 restaurantId = order.restaurantId,
                 tableId = order.tableId,
+                customerId = order.customerId,
                 status = order.status.name,
                 totalAmount = order.totalAmount,
                 createdAt = order.createdAt,
@@ -79,6 +82,27 @@ class TableController(
                     )
                 }
             )
+        }
+    }
+
+    @PostMapping("/{tableId}/apply-member")
+    @Transactional
+    suspend fun applyMember(@PathVariable tableId: Long, @RequestBody request: Map<String, Long>) {
+        val customerId = request["customerId"] ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer ID required")
+        
+        val customer = customerRepository.findById(customerId) 
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")
+
+        if (!customer.isMember) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Customer is not a member")
+        }
+
+        val activeStatuses = listOf(OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED)
+        val orders = orderRepository.findByTableIdAndStatusIn(tableId, activeStatuses).toList()
+
+        if (orders.isNotEmpty()) {
+            val updatedOrders = orders.map { it.copy(customerId = customerId) }
+            orderRepository.saveAll(updatedOrders).toList()
         }
     }
 

@@ -77,6 +77,7 @@ class OrderController(
                 id = order.id!!,
                 restaurantId = order.restaurantId,
                 tableId = order.tableId,
+                customerId = order.customerId,
                 status = order.status.name,
                 totalAmount = order.totalAmount,
                 createdAt = order.createdAt,
@@ -159,6 +160,7 @@ class OrderController(
             Order(
                 restaurantId = request.restaurantId,
                 tableId = request.tableId,
+                customerId = request.customerId,
                 totalAmount = totalAmount,
                 status = OrderStatus.PENDING
             )

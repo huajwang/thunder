@@ -8,6 +8,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CartService } from './core/services/cart.service';
 import { CartDialogComponent } from './features/cart-dialog/cart-dialog.component';
+import { MemberLoginDialogComponent } from './features/customer/member-login-dialog.component';
 
 @Component({
   selector: 'app-root',
@@ -38,6 +39,23 @@ export class App {
       data: {
         restaurantId: restaurantId,
         tableId: this.cartService.tableId()
+      }
+    });
+  }
+
+  openMemberLogin() {
+    const restaurantId = this.cartService.restaurantId();
+    if (!restaurantId) return;
+
+    const dialogRef = this.dialog.open(MemberLoginDialogComponent, {
+      width: '400px'
+    });
+    
+    dialogRef.componentInstance.restaurantId = restaurantId;
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.cartService.setCustomer(result.customerId, result.phoneNumber, result.isMember);
       }
     });
   }

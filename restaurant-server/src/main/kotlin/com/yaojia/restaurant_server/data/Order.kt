@@ -11,6 +11,7 @@ data class Order(
     val id: Long? = null,
     val restaurantId: Long,
     val tableId: Long? = null,
+    val customerId: Long? = null,
     val customerName: String? = null,
     val status: OrderStatus = OrderStatus.PENDING,
     val totalAmount: BigDecimal,
