@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, NgZone } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
 import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant } from '../models/restaurant.types';
 
@@ -8,6 +8,7 @@ import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaura
 })
 export class RestaurantService {
   private http = inject(HttpClient);
+  private zone = inject(NgZone);
   private readonly API_URL = 'http://localhost:8080/api';
 
   placeOrder(order: OrderRequest): Observable<OrderResponse> {
@@ -20,6 +21,28 @@ export class RestaurantService {
       params += `&statuses=${statuses.join(',')}`;
     }
     return this.http.get<OrderDetails[]>(`${this.API_URL}/orders?${params}`);
+  }
+
+  getOrderStream(restaurantId: number): Observable<any> {
+    return new Observable(observer => {
+      const eventSource = new EventSource(`${this.API_URL}/orders/stream?restaurantId=${restaurantId}`);
+      
+      eventSource.onmessage = (event) => {
+        this.zone.run(() => {
+          observer.next(JSON.parse(event.data));
+        });
+      };
+
+      eventSource.onerror = (error) => {
+        this.zone.run(() => {
+          observer.error(error);
+        });
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    });
   }
 
   updateOrderStatus(orderId: number, status: string): Observable<OrderResponse> {

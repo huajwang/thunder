@@ -152,10 +152,20 @@ export class KitchenComponent implements OnInit {
         this.restaurantService.getRestaurantBySlug(slug).subscribe(restaurant => {
           this.restaurantId = restaurant.id;
           this.refreshOrders();
-          // Poll every 10 seconds
-          setInterval(() => this.refreshOrders(), 10000);
+          this.subscribeToUpdates();
         });
       }
+    });
+  }
+
+  subscribeToUpdates() {
+    if (!this.restaurantId) return;
+    this.restaurantService.getOrderStream(this.restaurantId).subscribe({
+      next: (event) => {
+        console.log('Received order update:', event);
+        this.refreshOrders();
+      },
+      error: (err) => console.error('SSE Error:', err)
     });
   }
 

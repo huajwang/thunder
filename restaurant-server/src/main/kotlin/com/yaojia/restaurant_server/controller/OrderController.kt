@@ -10,8 +10,13 @@ import com.yaojia.restaurant_server.dto.OrderResponse
 import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.OrderItemRepository
 import com.yaojia.restaurant_server.repo.OrderRepository
+import com.yaojia.restaurant_server.service.OrderEvent
+import com.yaojia.restaurant_server.service.OrderEventService
+import com.yaojia.restaurant_server.service.OrderEventType
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -22,8 +27,14 @@ import java.math.BigDecimal
 class OrderController(
     private val orderRepository: OrderRepository,
     private val orderItemRepository: OrderItemRepository,
-    private val menuItemRepository: MenuItemRepository
+    private val menuItemRepository: MenuItemRepository,
+    private val orderEventService: OrderEventService
 ) {
+
+    @GetMapping(value = ["/stream"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
+    fun streamOrders(@RequestParam restaurantId: Long): Flow<OrderEvent> {
+        return orderEventService.subscribe(restaurantId)
+    }
 
     @GetMapping
     suspend fun getOrders(
@@ -82,6 +93,15 @@ class OrderController(
         val order = orderRepository.findById(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found")
         val updatedOrder = orderRepository.save(order.copy(status = status))
 
+        orderEventService.emit(
+            OrderEvent(
+                orderId = updatedOrder.id!!,
+                restaurantId = updatedOrder.restaurantId,
+                status = updatedOrder.status,
+                type = OrderEventType.UPDATED
+            )
+        )
+
         return OrderResponse(
             id = updatedOrder.id!!,
             status = updatedOrder.status.name,
@@ -131,6 +151,15 @@ class OrderController(
         // 4. Save Order Items
         val itemsWithOrderId = orderItemsToSave.map { it.copy(orderId = savedOrder.id!!) }
         orderItemRepository.saveAll(itemsWithOrderId).toList()
+
+        orderEventService.emit(
+            OrderEvent(
+                orderId = savedOrder.id!!,
+                restaurantId = savedOrder.restaurantId,
+                status = savedOrder.status,
+                type = OrderEventType.CREATED
+            )
+        )
 
         return OrderResponse(
             id = savedOrder.id!!,
