@@ -12,4 +12,5 @@ import com.yaojia.restaurant_server.data.OrderStatus
 interface OrderRepository : CoroutineCrudRepository<Order, Long> {
     fun findByRestaurantId(restaurantId: Long): Flow<Order>
     fun findByRestaurantIdAndStatusIn(restaurantId: Long, statuses: List<OrderStatus>): Flow<Order>
+    fun findByTableIdAndStatusIn(tableId: Long, statuses: List<OrderStatus>): Flow<Order>
 }

@@ -22,6 +22,7 @@ class SecurityConfig {
                 exchanges
                     .pathMatchers("/api/restaurants/**").permitAll()
                     .pathMatchers("/api/orders/**").permitAll()
+                    .pathMatchers("/api/tables/**").permitAll()
                     .anyExchange().authenticated()
             }
             .httpBasic { it.disable() }

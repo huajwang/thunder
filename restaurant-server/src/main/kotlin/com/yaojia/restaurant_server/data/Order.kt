@@ -19,7 +19,7 @@ data class Order(
 )
 
 enum class OrderStatus {
-    PENDING, PREPARING, READY, COMPLETED, CANCELLED
+    PENDING, PREPARING, READY, COMPLETED, CANCELLED, PAID
 }
 
 @Table("order_items")

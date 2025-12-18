@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, NgZone } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
-import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant } from '../models/restaurant.types';
+import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant, RestaurantTable } from '../models/restaurant.types';
 
 @Injectable({
   providedIn: 'root'
@@ -47,6 +47,18 @@ export class RestaurantService {
 
   updateOrderStatus(orderId: number, status: string): Observable<OrderResponse> {
     return this.http.put<OrderResponse>(`${this.API_URL}/orders/${orderId}/status`, { status });
+  }
+
+  getTables(restaurantId: number): Observable<RestaurantTable[]> {
+    return this.http.get<RestaurantTable[]>(`${this.API_URL}/tables?restaurantId=${restaurantId}`);
+  }
+
+  getTableBill(tableId: number): Observable<OrderDetails[]> {
+    return this.http.get<OrderDetails[]>(`${this.API_URL}/tables/${tableId}/bill`);
+  }
+
+  checkoutTable(tableId: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/tables/${tableId}/checkout`, {});
   }
 
   getRestaurantBySlug(slug: string): Observable<Restaurant> {

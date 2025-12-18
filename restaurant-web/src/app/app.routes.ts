@@ -10,6 +10,10 @@ export const routes: Routes = [
     path: ':slug/staff', 
     loadComponent: () => import('./features/staff/staff.component').then(m => m.StaffComponent) 
   },
+  { 
+    path: ':slug/tables', 
+    loadComponent: () => import('./features/tables/tables.component').then(m => m.TablesComponent) 
+  },
   { path: ':slug', component: RestaurantMenuComponent },
   { path: ':slug/table/:tableNumber', component: RestaurantMenuComponent }
 ];

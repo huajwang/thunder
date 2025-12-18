@@ -36,7 +36,17 @@ class DataSeeder(
 
     private suspend fun seedRestaurants() {
         val slug = "joes-pizza"
-        if (restaurantRepository.findBySlug(slug).firstOrNull() != null) {
+        val existingRestaurant = restaurantRepository.findBySlug(slug).firstOrNull()
+        
+        if (existingRestaurant != null) {
+            if (restaurantTableRepository.findByRestaurantId(existingRestaurant.id!!).firstOrNull() == null) {
+                logger.info("Seeding missing tables for $slug...")
+                restaurantTableRepository.save(RestaurantTable(restaurantId = existingRestaurant.id!!, tableNumber = 1))
+                restaurantTableRepository.save(RestaurantTable(restaurantId = existingRestaurant.id!!, tableNumber = 2))
+                restaurantTableRepository.save(RestaurantTable(restaurantId = existingRestaurant.id!!, tableNumber = 3))
+                restaurantTableRepository.save(RestaurantTable(restaurantId = existingRestaurant.id!!, tableNumber = 4))
+                restaurantTableRepository.save(RestaurantTable(restaurantId = existingRestaurant.id!!, tableNumber = 5))
+            }
             logger.info("Data already seeded for $slug")
             return
         }

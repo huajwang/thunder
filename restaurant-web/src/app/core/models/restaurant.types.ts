@@ -60,3 +60,10 @@ export interface OrderDetails {
   updatedAt: string;
   items: OrderItemDto[];
 }
+
+export interface RestaurantTable {
+  id: number;
+  restaurantId: number;
+  tableNumber: number;
+  qrCodeSlug?: string;
+}
