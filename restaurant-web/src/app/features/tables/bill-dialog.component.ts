@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatListModule } from '@angular/material/list';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { OrderDetails } from '../../core/models/restaurant.types';
+import { TAX_RATE } from '../../core/constants';
 
 @Component({
   selector: 'app-bill-dialog',
@@ -46,7 +47,7 @@ import { OrderDetails } from '../../core/models/restaurant.types';
               </div>
             }
             <div class="summary-row">
-              <span>Tax (13%):</span>
+              <span>Tax ({{ taxRate * 100 }}%):</span>
               <span>\${{ tax().toFixed(2) }}</span>
             </div>
             <div class="summary-row total">
@@ -132,6 +133,8 @@ export class BillDialogComponent implements OnInit {
   discount = signal(0);
   tax = signal(0);
   totalAmount = signal(0);
+  
+  protected readonly taxRate = TAX_RATE;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: { tableId: number, tableNumber: number }) {}
 

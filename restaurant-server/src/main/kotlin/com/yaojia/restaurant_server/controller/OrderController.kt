@@ -1,5 +1,6 @@
 package com.yaojia.restaurant_server.controller
 
+import com.yaojia.restaurant_server.config.Constants
 import com.yaojia.restaurant_server.data.Order
 import com.yaojia.restaurant_server.data.OrderItem
 import com.yaojia.restaurant_server.data.OrderStatus
@@ -168,7 +169,7 @@ class OrderController(
         }
 
         val taxableAmount = subTotal.subtract(discount)
-        val tax = taxableAmount.multiply(BigDecimal("0.13"))
+        val tax = taxableAmount.multiply(Constants.TAX_RATE)
         val totalAmount = taxableAmount.add(tax)
 
         // 3. Save Order
