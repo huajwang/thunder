@@ -3,6 +3,8 @@ package com.yaojia.restaurant_server.controller
 import com.yaojia.restaurant_server.data.Order
 import com.yaojia.restaurant_server.data.OrderItem
 import com.yaojia.restaurant_server.data.OrderStatus
+import com.yaojia.restaurant_server.dto.OrderDetailsDto
+import com.yaojia.restaurant_server.dto.OrderItemDto
 import com.yaojia.restaurant_server.dto.OrderRequest
 import com.yaojia.restaurant_server.dto.OrderResponse
 import com.yaojia.restaurant_server.repo.MenuItemRepository
@@ -22,6 +24,70 @@ class OrderController(
     private val orderItemRepository: OrderItemRepository,
     private val menuItemRepository: MenuItemRepository
 ) {
+
+    @GetMapping
+    suspend fun getOrders(
+        @RequestParam restaurantId: Long,
+        @RequestParam(required = false) statuses: List<OrderStatus>?
+    ): List<OrderDetailsDto> {
+        val orders = if (statuses != null && statuses.isNotEmpty()) {
+            orderRepository.findByRestaurantIdAndStatusIn(restaurantId, statuses).toList()
+        } else {
+            orderRepository.findByRestaurantId(restaurantId).toList()
+        }
+
+        if (orders.isEmpty()) return emptyList()
+
+        val orderIds = orders.mapNotNull { it.id }
+        val orderItems = orderItemRepository.findByOrderIdIn(orderIds).toList()
+
+        val menuItemIds = orderItems.map { it.menuItemId }.distinct()
+        val menuItems = menuItemRepository.findAllById(menuItemIds).toList().associateBy { it.id }
+
+        return orders.map { order ->
+            val itemsForOrder = orderItems.filter { it.orderId == order.id }
+            OrderDetailsDto(
+                id = order.id!!,
+                restaurantId = order.restaurantId,
+                tableId = order.tableId,
+                status = order.status.name,
+                totalAmount = order.totalAmount,
+                createdAt = order.createdAt,
+                updatedAt = order.updatedAt,
+                items = itemsForOrder.map { item ->
+                    val menuItem = menuItems[item.menuItemId]
+                    OrderItemDto(
+                        menuItemId = item.menuItemId,
+                        menuItemName = menuItem?.name ?: "Unknown",
+                        quantity = item.quantity,
+                        price = item.priceAtOrder
+                    )
+                }
+            )
+        }
+    }
+
+    @PutMapping("/{id}/status")
+    suspend fun updateOrderStatus(
+        @PathVariable id: Long,
+        @RequestBody newStatus: Map<String, String>
+    ): OrderResponse {
+        val statusStr = newStatus["status"] ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Status required")
+        val status = try {
+            OrderStatus.valueOf(statusStr)
+        } catch (e: IllegalArgumentException) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status")
+        }
+
+        val order = orderRepository.findById(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found")
+        val updatedOrder = orderRepository.save(order.copy(status = status))
+
+        return OrderResponse(
+            id = updatedOrder.id!!,
+            status = updatedOrder.status.name,
+            totalAmount = updatedOrder.totalAmount
+        )
+    }
 
     @PostMapping
     @Transactional

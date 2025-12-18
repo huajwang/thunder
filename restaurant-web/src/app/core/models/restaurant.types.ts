@@ -42,3 +42,21 @@ export interface OrderResponse {
   status: string;
   totalAmount: number;
 }
+
+export interface OrderItemDto {
+  menuItemId: number;
+  menuItemName: string;
+  quantity: number;
+  price: number;
+}
+
+export interface OrderDetails {
+  id: number;
+  restaurantId: number;
+  tableId?: number;
+  status: string;
+  totalAmount: number;
+  createdAt: string;
+  updatedAt: string;
+  items: OrderItemDto[];
+}

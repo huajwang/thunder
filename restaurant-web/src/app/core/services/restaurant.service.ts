@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
-import { Category, MenuItem, OrderRequest, OrderResponse, Restaurant } from '../models/restaurant.types';
+import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant } from '../models/restaurant.types';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +12,18 @@ export class RestaurantService {
 
   placeOrder(order: OrderRequest): Observable<OrderResponse> {
     return this.http.post<OrderResponse>(`${this.API_URL}/orders`, order);
+  }
+
+  getOrders(restaurantId: number, statuses?: string[]): Observable<OrderDetails[]> {
+    let params = `restaurantId=${restaurantId}`;
+    if (statuses && statuses.length > 0) {
+      params += `&statuses=${statuses.join(',')}`;
+    }
+    return this.http.get<OrderDetails[]>(`${this.API_URL}/orders?${params}`);
+  }
+
+  updateOrderStatus(orderId: number, status: string): Observable<OrderResponse> {
+    return this.http.put<OrderResponse>(`${this.API_URL}/orders/${orderId}/status`, { status });
   }
 
   getRestaurantBySlug(slug: string): Observable<Restaurant> {

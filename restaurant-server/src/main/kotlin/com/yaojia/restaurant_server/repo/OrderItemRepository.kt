@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface OrderItemRepository : CoroutineCrudRepository<OrderItem, Long> {
     fun findByOrderId(orderId: Long): Flow<OrderItem>
+    fun findByOrderIdIn(orderIds: List<Long>): Flow<OrderItem>
 }
