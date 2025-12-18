@@ -17,8 +17,20 @@
     </button>
   </mat-menu>
 
-  <span>Thunder ⚡</span>
   <span class="spacer"></span>
+
+  <div class="center-title">
+    @if (cartService.restaurantName(); as name) {
+      <div class="title-container">
+        <span class="restaurant-name">{{ name }}</span>
+        @if (cartService.tableId(); as table) {
+          <span class="table-badge">Table {{ table }}</span>
+        }
+      </div>
+    } @else {
+      <span class="app-name">Thunder ⚡</span>
+    }
+  </div>
 
   <button mat-icon-button aria-label="Search">
     <mat-icon>search</mat-icon>

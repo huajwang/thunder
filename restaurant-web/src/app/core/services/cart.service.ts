@@ -13,6 +13,7 @@ export class CartService {
   // Signals
   private cartItems = signal<CartItem[]>([]);
   restaurantId = signal<number | null>(null);
+  restaurantName = signal<string | null>(null);
   tableId = signal<number | null>(null);
 
   // Computed values
@@ -63,8 +64,9 @@ export class CartService {
     this.cartItems.set([]);
   }
 
-  setContext(restaurantId: number, tableId?: number | null) {
+  setContext(restaurantId: number, restaurantName: string, tableId?: number | null) {
     this.restaurantId.set(restaurantId);
+    this.restaurantName.set(restaurantName);
     if (tableId !== undefined) {
       this.tableId.set(tableId);
     }

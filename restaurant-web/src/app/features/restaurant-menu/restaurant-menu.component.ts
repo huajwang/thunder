@@ -46,7 +46,7 @@ export class RestaurantMenuComponent implements OnInit {
         this.loading.set(false);
         
         // Set context for CartService
-        this.cartService.setContext(data.restaurant.id, this.currentTable());
+        this.cartService.setContext(data.restaurant.id, data.restaurant.name, this.currentTable());
       },
       error: (err) => {
         console.error('Error loading menu:', err);
