@@ -1,7 +1,10 @@
 package com.yaojia.restaurant_server.config
 
+import com.yaojia.restaurant_server.security.AuthenticationManager
+import com.yaojia.restaurant_server.security.SecurityContextRepository
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.web.server.SecurityWebFilterChain
@@ -14,15 +17,23 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 class SecurityConfig {
 
     @Bean
-    fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    fun securityWebFilterChain(
+        http: ServerHttpSecurity,
+        authenticationManager: AuthenticationManager,
+        securityContextRepository: SecurityContextRepository
+    ): SecurityWebFilterChain {
         return http
             .csrf { it.disable() }
             .cors { it.configurationSource(corsConfigurationSource()) }
+            .authenticationManager(authenticationManager)
+            .securityContextRepository(securityContextRepository)
             .authorizeExchange { exchanges ->
                 exchanges
-                    .pathMatchers("/api/restaurants/**").permitAll()
-                    .pathMatchers("/api/orders/**").permitAll()
-                    .pathMatchers("/api/tables/**").permitAll()
+                    .pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                    .pathMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll()
+                    .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
+                    .pathMatchers("/api/orders/stream").authenticated()
+                    .pathMatchers("/api/tables/**").authenticated()
                     .anyExchange().authenticated()
             }
             .httpBasic { it.disable() }

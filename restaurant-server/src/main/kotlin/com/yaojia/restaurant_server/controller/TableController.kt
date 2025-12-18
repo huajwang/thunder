@@ -11,6 +11,7 @@ import com.yaojia.restaurant_server.repo.RestaurantTableRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -26,12 +27,26 @@ class TableController(
 ) {
 
     @GetMapping
-    fun getTables(@RequestParam restaurantId: Long): Flow<RestaurantTable> {
+    fun getTables(@RequestParam restaurantId: Long, authentication: Authentication): Flow<RestaurantTable> {
+        val details = authentication.details as? Map<*, *>
+        val userRestaurantId = details?.get("restaurantId") as? Long
+        if (userRestaurantId != null && userRestaurantId != restaurantId) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied")
+        }
         return restaurantTableRepository.findByRestaurantId(restaurantId)
     }
 
     @GetMapping("/{tableId}/bill")
-    suspend fun getTableBill(@PathVariable tableId: Long): List<OrderDetailsDto> {
+    suspend fun getTableBill(@PathVariable tableId: Long, authentication: Authentication): List<OrderDetailsDto> {
+        val table = restaurantTableRepository.findById(tableId) 
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found")
+            
+        val details = authentication.details as? Map<*, *>
+        val userRestaurantId = details?.get("restaurantId") as? Long
+        if (userRestaurantId != null && userRestaurantId != table.restaurantId) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied")
+        }
+
         // Fetch all orders for the table that are NOT PAID and NOT CANCELLED
         val activeStatuses = listOf(OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED)
         val orders = orderRepository.findByTableIdAndStatusIn(tableId, activeStatuses).toList()
@@ -69,7 +84,16 @@ class TableController(
 
     @PostMapping("/{tableId}/checkout")
     @Transactional
-    suspend fun checkoutTable(@PathVariable tableId: Long) {
+    suspend fun checkoutTable(@PathVariable tableId: Long, authentication: Authentication) {
+        val table = restaurantTableRepository.findById(tableId) 
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found")
+            
+        val details = authentication.details as? Map<*, *>
+        val userRestaurantId = details?.get("restaurantId") as? Long
+        if (userRestaurantId != null && userRestaurantId != table.restaurantId) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied")
+        }
+
         val activeStatuses = listOf(OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED)
         val orders = orderRepository.findByTableIdAndStatusIn(tableId, activeStatuses).toList()
 

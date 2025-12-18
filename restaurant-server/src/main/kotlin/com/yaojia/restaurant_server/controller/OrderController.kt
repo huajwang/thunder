@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.core.Authentication
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -32,15 +33,30 @@ class OrderController(
 ) {
 
     @GetMapping(value = ["/stream"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
-    fun streamOrders(@RequestParam restaurantId: Long): Flow<OrderEvent> {
+    fun streamOrders(@RequestParam restaurantId: Long, authentication: Authentication): Flow<OrderEvent> {
+        val details = authentication.details as? Map<*, *>
+        val userRestaurantId = details?.get("restaurantId") as? Long
+        
+        if (userRestaurantId != null && userRestaurantId != restaurantId) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied")
+        }
+        
         return orderEventService.subscribe(restaurantId)
     }
 
     @GetMapping
     suspend fun getOrders(
         @RequestParam restaurantId: Long,
-        @RequestParam(required = false) statuses: List<OrderStatus>?
+        @RequestParam(required = false) statuses: List<OrderStatus>?,
+        authentication: Authentication
     ): List<OrderDetailsDto> {
+        val details = authentication.details as? Map<*, *>
+        val userRestaurantId = details?.get("restaurantId") as? Long
+        
+        if (userRestaurantId != null && userRestaurantId != restaurantId) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied")
+        }
+
         val orders = if (statuses != null && statuses.isNotEmpty()) {
             orderRepository.findByRestaurantIdAndStatusIn(restaurantId, statuses).toList()
         } else {

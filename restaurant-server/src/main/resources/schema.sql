@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS restaurant_tables;
 DROP TABLE IF EXISTS menu_items;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS restaurants;
 
 -- Restaurants Table
@@ -81,4 +82,16 @@ CREATE TABLE IF NOT EXISTS order_items (
     price_at_order DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
+);
+
+-- Users Table
+CREATE TABLE IF NOT EXISTS users (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    restaurant_id BIGINT NOT NULL,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
 );

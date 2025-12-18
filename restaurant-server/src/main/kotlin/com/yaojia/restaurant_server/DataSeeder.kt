@@ -4,10 +4,12 @@ import com.yaojia.restaurant_server.data.Category
 import com.yaojia.restaurant_server.data.MenuItem
 import com.yaojia.restaurant_server.data.Restaurant
 import com.yaojia.restaurant_server.data.RestaurantTable
+import com.yaojia.restaurant_server.data.User
 import com.yaojia.restaurant_server.repo.CategoryRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
 import com.yaojia.restaurant_server.repo.RestaurantTableRepository
+import com.yaojia.restaurant_server.repo.UserRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -23,7 +25,8 @@ class DataSeeder(
     private val restaurantRepository: RestaurantRepository,
     private val categoryRepository: CategoryRepository,
     private val menuItemRepository: MenuItemRepository,
-    private val restaurantTableRepository: RestaurantTableRepository
+    private val restaurantTableRepository: RestaurantTableRepository,
+    private val userRepository: UserRepository
 ) {
     private val logger = LoggerFactory.getLogger(DataSeeder::class.java)
 
@@ -31,6 +34,24 @@ class DataSeeder(
     fun initData() = CommandLineRunner {
         runBlocking {
             seedRestaurants()
+            seedUsers()
+        }
+    }
+
+    private suspend fun seedUsers() {
+        if (userRepository.findByUsername("admin") == null) {
+            val restaurant = restaurantRepository.findBySlug("joes-pizza").firstOrNull()
+            if (restaurant != null) {
+                userRepository.save(
+                    User(
+                        restaurantId = restaurant.id!!,
+                        username = "admin",
+                        password = "password",
+                        role = "ADMIN"
+                    )
+                )
+                logger.info("Seeded admin user for joes-pizza")
+            }
         }
     }
 

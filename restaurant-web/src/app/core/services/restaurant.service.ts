@@ -25,7 +25,8 @@ export class RestaurantService {
 
   getOrderStream(restaurantId: number): Observable<any> {
     return new Observable(observer => {
-      const eventSource = new EventSource(`${this.API_URL}/orders/stream?restaurantId=${restaurantId}`);
+      const token = localStorage.getItem('auth_token');
+      const eventSource = new EventSource(`${this.API_URL}/orders/stream?restaurantId=${restaurantId}&token=${token}`);
       
       eventSource.onmessage = (event) => {
         this.zone.run(() => {
