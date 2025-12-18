@@ -1,0 +1,9 @@
+spring:
+  r2dbc:
+    url: r2dbc:mysql://${MYSQL_HOSTNAME}:3306/restaurant
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+
+oss:
+  bucket-name: "yaojia-restaurant-prod"
