@@ -1,0 +1,37 @@
+.empty-cart {
+  text-align: center;
+  padding: 40px 0;
+  color: #666;
+}
+
+.empty-cart mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+}
+
+.qty {
+  margin: 0 10px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+}
+
+.total-section {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+  text-align: right;
+}
+
+.error-msg {
+  color: #f44336;
+  margin-top: 10px;
+  text-align: center;
+}

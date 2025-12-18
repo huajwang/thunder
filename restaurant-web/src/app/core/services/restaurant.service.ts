@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
-import { Category, MenuItem, Restaurant } from '../models/restaurant.types';
+import { Category, MenuItem, OrderRequest, OrderResponse, Restaurant } from '../models/restaurant.types';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +9,10 @@ import { Category, MenuItem, Restaurant } from '../models/restaurant.types';
 export class RestaurantService {
   private http = inject(HttpClient);
   private readonly API_URL = 'http://localhost:8080/api';
+
+  placeOrder(order: OrderRequest): Observable<OrderResponse> {
+    return this.http.post<OrderResponse>(`${this.API_URL}/orders`, order);
+  }
 
   getRestaurantBySlug(slug: string): Observable<Restaurant> {
     return this.http.get<Restaurant>(`${this.API_URL}/restaurants/slug/${slug}`);

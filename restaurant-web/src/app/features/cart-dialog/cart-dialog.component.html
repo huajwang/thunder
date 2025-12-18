@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>Your Order</h2>
+<mat-dialog-content>
+  @if (cartService.items().length === 0) {
+    <div class="empty-cart">
+      <mat-icon>shopping_cart</mat-icon>
+      <p>Your cart is empty</p>
+    </div>
+  } @else {
+    <mat-list>
+      @for (item of cartService.items(); track item.menuItem.id) {
+        <mat-list-item>
+          <span matListItemTitle>{{ item.menuItem.name }}</span>
+          <span matListItemLine>\${{ item.menuItem.price.toFixed(2) }} x {{ item.quantity }}</span>
+          
+          <div class="qty-controls" matListItemMeta>
+            <button mat-icon-button (click)="decreaseQuantity(item.menuItem.id, item.quantity)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="qty">{{ item.quantity }}</span>
+            <button mat-icon-button (click)="increaseQuantity(item.menuItem.id, item.quantity)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+      }
+    </mat-list>
+
+    <div class="total-section">
+      <h3>Total: \${{ cartService.totalAmount().toFixed(2) }}</h3>
+    </div>
+
+    @if (error) {
+      <p class="error-msg">{{ error }}</p>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="isSubmitting">Cancel</button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="placeOrder()" 
+    [disabled]="cartService.items().length === 0 || isSubmitting">
+    @if (isSubmitting) {
+      Placing Order...
+    } @else {
+      Place Order
+    }
+  </button>
+</mat-dialog-actions>

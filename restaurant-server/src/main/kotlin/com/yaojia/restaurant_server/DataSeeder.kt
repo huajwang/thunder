@@ -3,9 +3,11 @@ package com.yaojia.restaurant_server
 import com.yaojia.restaurant_server.data.Category
 import com.yaojia.restaurant_server.data.MenuItem
 import com.yaojia.restaurant_server.data.Restaurant
+import com.yaojia.restaurant_server.data.RestaurantTable
 import com.yaojia.restaurant_server.repo.CategoryRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
+import com.yaojia.restaurant_server.repo.RestaurantTableRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
@@ -20,7 +22,8 @@ import java.math.BigDecimal
 class DataSeeder(
     private val restaurantRepository: RestaurantRepository,
     private val categoryRepository: CategoryRepository,
-    private val menuItemRepository: MenuItemRepository
+    private val menuItemRepository: MenuItemRepository,
+    private val restaurantTableRepository: RestaurantTableRepository
 ) {
     private val logger = LoggerFactory.getLogger(DataSeeder::class.java)
 
@@ -51,7 +54,14 @@ class DataSeeder(
             )
         )
 
-        // 2. Create Categories
+        // 2. Create Tables
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 1))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 2))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 3))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 4))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 5))
+
+        // 3. Create Categories
         val starters = categoryRepository.save(
             Category(restaurantId = restaurant.id!!, name = "Starters", displayOrder = 1)
         )

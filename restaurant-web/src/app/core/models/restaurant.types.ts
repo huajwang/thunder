@@ -25,3 +25,20 @@ export interface MenuItem {
   imageUrl?: string;
   isAvailable: boolean;
 }
+
+export interface OrderItemRequest {
+  menuItemId: number;
+  quantity: number;
+}
+
+export interface OrderRequest {
+  restaurantId: number;
+  tableId?: number;
+  items: OrderItemRequest[];
+}
+
+export interface OrderResponse {
+  id: number;
+  status: string;
+  totalAmount: number;
+}

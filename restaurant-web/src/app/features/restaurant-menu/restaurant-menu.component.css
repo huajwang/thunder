@@ -2,6 +2,7 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
+  padding-bottom: 80px; /* Space for FAB */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -23,7 +24,19 @@
   margin-top: 8px;
 }
 
+.table-badge {
+  display: inline-block;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
 .category-section {
+
   margin-bottom: 30px;
 }
 
@@ -97,4 +110,11 @@
 
 .add-btn:active {
   background-color: #fa5252;
+}
+
+.cart-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
 }

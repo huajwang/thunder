@@ -3,8 +3,12 @@
     <header class="restaurant-header">
       <h1>{{ rest.name }}</h1>
       <p>{{ rest.description }}</p>
+      @if (currentTable(); as table) {
+        <div class="table-badge">Table #{{ table }}</div>
+      }
     </header>
   }
+
 
   <div class="menu-content">
     @for (category of categories(); track category.id) {
@@ -19,8 +23,8 @@
                 <p class="item-desc">{{ item.description }}</p>
                 <span class="item-price">\${{ item.price.toFixed(2) }}</span>
               </div>
-              <button class="add-btn" (click)="addToOrder(item)">
-                +
+              <button mat-mini-fab color="primary" (click)="addToOrder(item)">
+                <mat-icon>add</mat-icon>
               </button>
             </div>
           }
