@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_kitchen">
+
+    <fragment
+        android:id="@+id/nav_kitchen"
+        android:name="com.yaojia.snowball.ui.kitchen.KitchenFragment"
+        android:label="@string/menu_kitchen"
+        tools:layout="@layout/fragment_kitchen" />
+
+    <fragment
+        android:id="@+id/nav_staff"
+        android:name="com.yaojia.snowball.ui.staff.StaffFragment"
+        android:label="@string/menu_staff"
+        tools:layout="@layout/fragment_staff" />
+
+    <fragment
+        android:id="@+id/nav_tables"
+        android:name="com.yaojia.snowball.ui.tables.TablesFragment"
+        android:label="@string/menu_tables"
+        tools:layout="@layout/fragment_tables" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.yaojia.snowball.ui.settings.SettingsFragment"
+        android:label="@string/menu_settings"
+        tools:layout="@layout/fragment_settings" />
+</navigation>

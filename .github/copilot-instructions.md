@@ -1,9 +1,10 @@
 # Copilot Instructions for Restaurant Project
 
 ## Project Overview
-This is a full-stack monorepo application:
+This is a full-stack monorepo application containing:
 - **Server**: `restaurant-server` (Spring Boot 4, Kotlin, WebFlux, R2DBC)
 - **Web**: `restaurant-web` (Angular 20, Standalone Components)
+- **Android**: `restaurant-android` (Native Android, Kotlin, ViewBinding)
 
 ## Server (`restaurant-server`)
 
@@ -34,10 +35,6 @@ This is a full-stack monorepo application:
 - Use `WebTestClient` for integration tests of controllers.
 - Use `runTest` from `kotlinx-coroutines-test` for unit testing suspending functions.
 
-### Build & Run
-- **Run**: `./gradlew bootRun`
-- **Test**: `./gradlew test`
-
 ## Web (`restaurant-web`)
 
 ### Architecture & Stack
@@ -65,8 +62,37 @@ This is a full-stack monorepo application:
 - **Real-time**: Uses Server-Sent Events (SSE) via `EventSource`.
 - **Auth**: JWT stored in `localStorage` (`auth_token`).
 
+## Android (`restaurant-android`)
+
+### Architecture & Stack
+- **Language**: Kotlin 2.0.21.
+- **SDK**: Min 24, Target 36.
+- **UI System**: View-based (XML) with **ViewBinding**.
+- **Navigation**: Jetpack Navigation Component (Single Activity, Multiple Fragments).
+- **Architecture**: MVVM (Model-View-ViewModel).
+
+### Coding Conventions
+- **UI Access**:
+  - **ALWAYS** use `ViewBinding`. Do NOT use `findViewById` or Kotlin Synthetics.
+  - Example: `binding.textView.text = "Hello"`
+- **Navigation**:
+  - Use `findNavController().navigate()` for transitions.
+  - Define arguments in `navigation/mobile_navigation.xml` (Safe Args).
+- **State**:
+  - Use `ViewModel` to hold UI state.
+  - Expose state via `LiveData` or `StateFlow` (prefer `StateFlow` for new code, though `LiveData` is currently used).
+- **Threading**:
+  - Use `viewModelScope` for coroutines launched from ViewModels.
+
 ## Workflows
-- **Development**:
-  1. Start DB: `docker-compose up -d` (MySQL).
-  2. Start Server: `./gradlew bootRun` (in `restaurant-server`).
-  3. Start Web: `ng serve` (in `restaurant-web`).
+
+### Development
+1. **Database**: `docker-compose up -d` (MySQL).
+2. **Server**: `./gradlew bootRun` (in `restaurant-server`).
+3. **Web**: `ng serve` (in `restaurant-web`).
+4. **Android**: Open in Android Studio or run `./gradlew installDebug` (in `restaurant-android`).
+
+### Testing
+- **Server**: `./gradlew test`
+- **Web**: `ng test`
+- **Android**: `./gradlew test` (Unit), `./gradlew connectedAndroidTest` (Instrumentation).
