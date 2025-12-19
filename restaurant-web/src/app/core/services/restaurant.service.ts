@@ -78,6 +78,10 @@ export class RestaurantService {
     return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurantId}/menu-items`);
   }
 
+  getVipConfig(restaurantId: number): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/restaurants/${restaurantId}/vip-config`);
+  }
+
   // Helper to get the full menu structure
   getFullMenu(slug: string): Observable<{ restaurant: Restaurant, categories: Category[] }> {
     return this.getRestaurantBySlug(slug).pipe(

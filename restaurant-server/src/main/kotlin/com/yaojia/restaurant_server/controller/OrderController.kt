@@ -1,6 +1,8 @@
 package com.yaojia.restaurant_server.controller
 
 import com.yaojia.restaurant_server.config.Constants
+import com.yaojia.restaurant_server.data.Category
+import com.yaojia.restaurant_server.data.MenuItem
 import com.yaojia.restaurant_server.data.Order
 import com.yaojia.restaurant_server.data.OrderItem
 import com.yaojia.restaurant_server.data.OrderStatus
@@ -8,13 +10,16 @@ import com.yaojia.restaurant_server.dto.OrderDetailsDto
 import com.yaojia.restaurant_server.dto.OrderItemDto
 import com.yaojia.restaurant_server.dto.OrderRequest
 import com.yaojia.restaurant_server.dto.OrderResponse
+import com.yaojia.restaurant_server.repo.CategoryRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.OrderItemRepository
 import com.yaojia.restaurant_server.repo.OrderRepository
+import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
 import com.yaojia.restaurant_server.service.OrderEvent
 import com.yaojia.restaurant_server.service.OrderEventService
 import com.yaojia.restaurant_server.service.OrderEventType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -30,6 +35,8 @@ class OrderController(
     private val orderRepository: OrderRepository,
     private val orderItemRepository: OrderItemRepository,
     private val menuItemRepository: MenuItemRepository,
+    private val categoryRepository: CategoryRepository,
+    private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
     private val orderEventService: OrderEventService
 ) {
 
@@ -138,25 +145,38 @@ class OrderController(
         }
 
         // 1. Fetch all menu items to get current prices
-        val menuItemIds = request.items.map { it.menuItemId }
+        val menuItemIds = request.items.map { it.menuItemId }.filter { it > 0 }
         val menuItems = menuItemRepository.findAllById(menuItemIds).toList()
             .associateBy { it.id }
 
         // 2. Calculate total and validate items
         var subTotal = BigDecimal.ZERO
         val orderItemsToSave = request.items.map { itemRequest ->
-            val menuItem = menuItems[itemRequest.menuItemId]
-                ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Menu item not found: ${itemRequest.menuItemId}")
-            
-            val lineTotal = menuItem.price.multiply(BigDecimal(itemRequest.quantity))
-            subTotal = subTotal.add(lineTotal)
-
-            OrderItem(
-                orderId = 0, // Will be updated after saving order
-                menuItemId = menuItem.id!!,
-                quantity = itemRequest.quantity,
-                priceAtOrder = menuItem.price
-            )
+            if (itemRequest.menuItemId == -999L) {
+                // Handle VIP Membership special item
+                val vipItem = getOrCreateVipItem(request.restaurantId)
+                val price = vipItem.price
+                subTotal = subTotal.add(price.multiply(BigDecimal(itemRequest.quantity)))
+                OrderItem(
+                    orderId = 0, // Will be updated after order save
+                    menuItemId = vipItem.id!!,
+                    quantity = itemRequest.quantity,
+                    priceAtOrder = price
+                )
+            } else {
+                val menuItem = menuItems[itemRequest.menuItemId]
+                    ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Menu item not found: ${itemRequest.menuItemId}")
+                
+                val price = menuItem.price
+                subTotal = subTotal.add(price.multiply(BigDecimal(itemRequest.quantity)))
+                
+                OrderItem(
+                    orderId = 0, // Will be updated after order save
+                    menuItemId = menuItem.id!!,
+                    quantity = itemRequest.quantity,
+                    priceAtOrder = price
+                )
+            }
         }
 
         // Calculate discount and tax
@@ -203,6 +223,52 @@ class OrderController(
             id = savedOrder.id!!,
             status = savedOrder.status.name,
             totalAmount = savedOrder.totalAmount
+        )
+    }
+
+    private suspend fun getOrCreateVipItem(restaurantId: Long): MenuItem {
+        // Check if VIP is enabled for this restaurant
+        val vipConfig = restaurantVipConfigRepository.findByRestaurantId(restaurantId)
+        if (vipConfig == null || !vipConfig.isEnabled) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, "VIP Membership is not available for this restaurant")
+        }
+
+        // Try to find existing VIP item
+        val existing = menuItemRepository.findByRestaurantId(restaurantId)
+            .toList()
+            .find { it.name == "VIP Membership" }
+        
+        if (existing != null) {
+            // Update price if it changed in config
+            if (existing.price.compareTo(vipConfig.price) != 0) {
+                return menuItemRepository.save(existing.copy(price = vipConfig.price))
+            }
+            return existing
+        }
+
+        // Create category if needed
+        val category = categoryRepository.findByRestaurantIdOrderByDisplayOrderAsc(restaurantId)
+            .toList()
+            .find { it.name == "Memberships" }
+            ?: categoryRepository.save(
+                Category(
+                    restaurantId = restaurantId,
+                    name = "Memberships",
+                    displayOrder = 999
+                )
+            )
+
+        // Create VIP item
+        return menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurantId,
+                categoryId = category.id,
+                name = "VIP Membership",
+                description = vipConfig.description ?: "Annual VIP Membership with exclusive benefits",
+                price = vipConfig.price,
+                imageUrl = vipConfig.imageUrl ?: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+                isAvailable = true
+            )
         )
     }
 }

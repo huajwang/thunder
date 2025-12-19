@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
+import { RouterModule } from '@angular/router';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { CartService } from '../../core/services/cart.service';
 import { Category, MenuItem, Restaurant } from '../../core/models/restaurant.types';
@@ -10,7 +11,7 @@ import { Category, MenuItem, Restaurant } from '../../core/models/restaurant.typ
 @Component({
   selector: 'app-restaurant-menu',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule, RouterModule],
   templateUrl: './restaurant-menu.component.html',
   styleUrl: './restaurant-menu.component.css'
 })
@@ -27,6 +28,7 @@ export class RestaurantMenuComponent implements OnInit {
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
   currentTable = signal<number | null>(null);
+  isVipEnabled = signal<boolean>(false);
 
   ngOnInit() {
     if (this.tableNumber) {
@@ -44,10 +46,21 @@ export class RestaurantMenuComponent implements OnInit {
         if (data.categories.length > 0) {
           this.selectedCategory.set(data.categories[0]);
         }
-        this.loading.set(false);
         
         // Set context for CartService
         this.cartService.setContext(data.restaurant.id, data.restaurant.name, this.currentTable());
+
+        // Check VIP status
+        this.restaurantService.getVipConfig(data.restaurant.id).subscribe({
+          next: (config) => {
+            this.isVipEnabled.set(config.isEnabled);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.isVipEnabled.set(false);
+            this.loading.set(false);
+          }
+        });
       },
       error: (err) => {
         console.error('Error loading menu:', err);

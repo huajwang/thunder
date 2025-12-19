@@ -10,7 +10,7 @@
       @for (item of cartService.items(); track item.menuItem.id) {
         <mat-list-item>
           <span matListItemTitle>{{ item.menuItem.name }}</span>
-          <span matListItemLine>\${{ item.menuItem.price.toFixed(2) }} x {{ item.quantity }}</span>
+          <span matListItemLine>${{ item.menuItem.price.toFixed(2) }} x {{ item.quantity }}</span>
           
           <div class="qty-controls" matListItemMeta>
             <button mat-icon-button (click)="decreaseQuantity(item.menuItem.id, item.quantity)">
@@ -26,7 +26,7 @@
     </mat-list>
 
     <div class="total-section">
-      <h3>Total: \${{ cartService.totalAmount().toFixed(2) }}</h3>
+      <h3>Total: ${{ cartService.totalAmount().toFixed(2) }}</h3>
     </div>
 
     @if (error) {

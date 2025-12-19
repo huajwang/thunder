@@ -4,11 +4,13 @@ import com.yaojia.restaurant_server.data.Category
 import com.yaojia.restaurant_server.data.MenuItem
 import com.yaojia.restaurant_server.data.Restaurant
 import com.yaojia.restaurant_server.data.RestaurantTable
+import com.yaojia.restaurant_server.data.RestaurantVipConfig
 import com.yaojia.restaurant_server.data.User
 import com.yaojia.restaurant_server.repo.CategoryRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
 import com.yaojia.restaurant_server.repo.RestaurantTableRepository
+import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
 import com.yaojia.restaurant_server.repo.UserRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
@@ -26,6 +28,7 @@ class DataSeeder(
     private val categoryRepository: CategoryRepository,
     private val menuItemRepository: MenuItemRepository,
     private val restaurantTableRepository: RestaurantTableRepository,
+    private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
     private val userRepository: UserRepository
 ) {
     private val logger = LoggerFactory.getLogger(DataSeeder::class.java)
@@ -33,7 +36,8 @@ class DataSeeder(
     @Bean
     fun initData() = CommandLineRunner {
         runBlocking {
-            seedRestaurants()
+            seedJoesPizza()
+            seedBurgerJoint()
             seedUsers()
         }
     }
@@ -55,7 +59,7 @@ class DataSeeder(
         }
     }
 
-    private suspend fun seedRestaurants() {
+    private suspend fun seedJoesPizza() {
         val slug = "joes-pizza"
         val existingRestaurant = restaurantRepository.findBySlug(slug).firstOrNull()
         
@@ -68,6 +72,20 @@ class DataSeeder(
                 restaurantTableRepository.save(RestaurantTable(restaurantId = existingRestaurant.id!!, tableNumber = 4))
                 restaurantTableRepository.save(RestaurantTable(restaurantId = existingRestaurant.id!!, tableNumber = 5))
             }
+
+            if (restaurantVipConfigRepository.findByRestaurantId(existingRestaurant.id!!) == null) {
+                logger.info("Seeding missing VIP config for $slug...")
+                restaurantVipConfigRepository.save(
+                    RestaurantVipConfig(
+                        restaurantId = existingRestaurant.id!!,
+                        isEnabled = true,
+                        price = BigDecimal("50.00"),
+                        description = "Join our VIP club for exclusive benefits!",
+                        imageUrl = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+                    )
+                )
+            }
+            
             logger.info("Data already seeded for $slug")
             return
         }
@@ -80,6 +98,7 @@ class DataSeeder(
                 name = "Joe's Pizza",
                 slug = slug,
                 description = "Best Pizza in Town since 1995",
+                imageUrl = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
                 address = "123 Main St, New York, NY",
                 phoneNumber = "555-0199"
             )
@@ -91,6 +110,17 @@ class DataSeeder(
         restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 3))
         restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 4))
         restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 5))
+
+        // 2.5 Create VIP Config
+        restaurantVipConfigRepository.save(
+            RestaurantVipConfig(
+                restaurantId = restaurant.id!!,
+                isEnabled = true,
+                price = BigDecimal("50.00"),
+                description = "Join our VIP club for exclusive benefits!",
+                imageUrl = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+            )
+        )
 
         // 3. Create Categories
         val starters = categoryRepository.save(
@@ -475,6 +505,108 @@ class DataSeeder(
             )
         )
 
-        logger.info("Seeding completed!")
+        logger.info("Seeding Joe's Pizza completed!")
+    }
+
+    private suspend fun seedBurgerJoint() {
+        val slug = "burger-joint"
+        val existingRestaurant = restaurantRepository.findBySlug(slug).firstOrNull()
+        
+        if (existingRestaurant != null) {
+             if (restaurantVipConfigRepository.findByRestaurantId(existingRestaurant.id!!) == null) {
+                logger.info("Seeding disabled VIP config for $slug...")
+                restaurantVipConfigRepository.save(
+                    RestaurantVipConfig(
+                        restaurantId = existingRestaurant.id!!,
+                        isEnabled = false,
+                        price = BigDecimal("0.00")
+                    )
+                )
+            }
+            logger.info("Data already seeded for $slug")
+            return
+        }
+
+        logger.info("Seeding data for $slug...")
+
+        // 1. Create Restaurant
+        val restaurant = restaurantRepository.save(
+            Restaurant(
+                name = "The Burger Joint",
+                slug = slug,
+                description = "Juicy burgers and crispy fries",
+                imageUrl = "https://images.unsplash.com/photo-1586190848861-99c8a3da7ce3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+                address = "456 Burger Lane, Food City, FC",
+                phoneNumber = "555-0200"
+            )
+        )
+
+        // 2. Create Tables
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 1))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 2))
+
+        // 2.5 Create VIP Config (Disabled)
+        restaurantVipConfigRepository.save(
+            RestaurantVipConfig(
+                restaurantId = restaurant.id!!,
+                isEnabled = false,
+                price = BigDecimal("0.00")
+            )
+        )
+
+        // 3. Create Categories
+        val burgers = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Burgers", displayOrder = 1)
+        )
+        val sides = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Sides", displayOrder = 2)
+        )
+        val drinks = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Drinks", displayOrder = 3)
+        )
+
+        // 4. Create Menu Items
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = burgers.id,
+                name = "Classic Burger",
+                description = "Beef patty, lettuce, tomato, onion, pickles",
+                price = BigDecimal("10.99"),
+                imageUrl = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = burgers.id,
+                name = "Cheeseburger",
+                description = "Classic burger with cheddar cheese",
+                price = BigDecimal("11.99"),
+                imageUrl = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+         menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = sides.id,
+                name = "Fries",
+                description = "Crispy fries",
+                price = BigDecimal("3.99"),
+                imageUrl = "https://images.unsplash.com/photo-1573080496987-a199f8cd75c5?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+         menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = drinks.id,
+                name = "Soda",
+                description = "Fountain drink",
+                price = BigDecimal("2.50"),
+                imageUrl = "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        
+        logger.info("Seeding Burger Joint completed!")
     }
 }

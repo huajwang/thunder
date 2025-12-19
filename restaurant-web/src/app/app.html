@@ -41,7 +41,7 @@
       <div class="title-container">
         <span class="restaurant-name">{{ name }}</span>
         @if (cartService.tableId(); as table) {
-          <span class="table-badge">Table {{ table }}</span>
+          <span class="table-badge">Table #{{ table }}</span>
         }
       </div>
     } @else {

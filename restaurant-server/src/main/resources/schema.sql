@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS menu_items;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS restaurant_vip_configs;
 DROP TABLE IF EXISTS restaurants;
 
 -- Restaurants Table
@@ -14,6 +15,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE COMMENT 'URL-friendly identifier',
     description TEXT,
+    image_url VARCHAR(512),
     address VARCHAR(255),
     phone_number VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -69,6 +71,19 @@ CREATE TABLE IF NOT EXISTS customers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY unique_phone_per_restaurant (restaurant_id, phone_number),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+);
+
+-- Restaurant VIP Configs Table
+CREATE TABLE IF NOT EXISTS restaurant_vip_configs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    restaurant_id BIGINT NOT NULL UNIQUE,
+    is_enabled BOOLEAN DEFAULT FALSE,
+    price DECIMAL(10, 2) NOT NULL DEFAULT 50.00,
+    description TEXT,
+    image_url VARCHAR(512),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
 );
 

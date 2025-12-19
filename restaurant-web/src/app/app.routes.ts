@@ -20,6 +20,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/tables/tables.component').then(m => m.TablesComponent),
     canActivate: [authGuard]
   },
+  { 
+    path: ':slug/vip', 
+    loadComponent: () => import('./features/vip-page/vip-page.component').then(m => m.VipPageComponent)
+  },
   { path: ':slug', component: RestaurantMenuComponent },
   { path: ':slug/table/:tableNumber', component: RestaurantMenuComponent }
 ];

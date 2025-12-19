@@ -1,65 +1,72 @@
 # Copilot Instructions for Restaurant Project
 
 ## Project Overview
-This workspace contains a full-stack application split into two main projects:
-- **Server**: `restaurant-server` (Spring Boot 4, Kotlin, WebFlux)
-- **Web**: `restaurant-web` (Angular 20)
+This is a full-stack monorepo application:
+- **Server**: `restaurant-server` (Spring Boot 4, Kotlin, WebFlux, R2DBC)
+- **Web**: `restaurant-web` (Angular 20, Standalone Components)
 
 ## Server (`restaurant-server`)
 
 ### Architecture & Stack
-- **Framework**: Spring Boot 4.0.0 (Reactive stack).
-- **Language**: Kotlin 2.2 running on Java 24.
-- **Database**: MySQL accessed via R2DBC (Reactive).
-- **Concurrency**: Kotlin Coroutines & Flow.
+- **Framework**: Spring Boot 4.0.0 (Reactive).
+- **Language**: Kotlin 2.2 (Java 24).
+- **Database**: MySQL 8.4 via R2DBC.
+- **Structure**: Layered architecture in `com.yaojia.restaurant_server`:
+  - `controller/`: REST endpoints (`@RestController`).
+  - `service/`: Business logic.
+  - `repo/`: Data access (`CoroutineCrudRepository`).
+  - `data/`: Entities (`data class`).
+  - `dto/`: Data Transfer Objects.
 
 ### Coding Conventions
-- **Async/Reactive**:
-  - **ALWAYS** prefer Kotlin Coroutines (`suspend` functions) over raw `Mono`/`Flux` types for single values.
-  - Use `Flow<T>` for streams of data instead of `Flux<T>`.
-  - Controller endpoints should be `suspend fun`.
-- **Data Access**:
-  - Use `CoroutineCrudRepository` or `R2dbcRepository`.
-  - Entities should be Kotlin `data class`es.
+- **Reactive/Async**:
+  - Use **Coroutines** (`suspend fun`) for single values.
+  - Use **Flow** (`Flow<T>`) for streams/collections.
+  - **Avoid** `Mono`/`Flux` types in method signatures unless absolutely necessary.
+- **Controllers**:
+  - Endpoints should be `suspend fun` or return `Flow<T>`.
+  - Use `ResponseStatusException` for error handling.
+  - Example: `suspend fun get(@PathVariable id: Long): Entity`
 - **Dependency Injection**:
-  - Prefer constructor injection.
+  - Prefer **constructor injection**.
 
 ### Testing
-- Use `WebTestClient` for testing reactive endpoints.
-- Use `@SpringBootTest` for integration tests.
-- Ensure tests handle coroutine execution (use `runTest` from `kotlinx-coroutines-test` if needed).
+- Use `WebTestClient` for integration tests of controllers.
+- Use `runTest` from `kotlinx-coroutines-test` for unit testing suspending functions.
 
 ### Build & Run
-- **Run**: `./gradlew bootRun` (in `restaurant-server/`)
+- **Run**: `./gradlew bootRun`
 - **Test**: `./gradlew test`
 
 ## Web (`restaurant-web`)
 
 ### Architecture & Stack
 - **Framework**: Angular 20.3.
-- **Style**: Standalone Components (No NgModules).
+- **UI Library**: Angular Material 20.2.
+- **Structure**: Feature-based:
+  - `src/app/core/`: Singleton services, models, guards, interceptors.
+  - `src/app/features/`: Feature modules (e.g., `auth`, `restaurant-menu`).
 
 ### Coding Conventions
 - **Components**:
-  - Use **Standalone Components** exclusively.
-  - Imports must be explicit in the `@Component` decorator.
+  - Use **Standalone Components** (`standalone: true`).
+  - Imports must be explicit in `@Component`.
 - **State Management**:
-  - **PREFER** Angular Signals (`signal()`, `computed()`, `effect()`) over RxJS `BehaviorSubject` for component state.
-  - Use RxJS mainly for complex event streams or HTTP handling where Signals aren't sufficient yet.
+  - **PREFER** Angular Signals (`signal()`, `computed()`, `effect()`) for local state.
+  - Use RxJS for HTTP requests and complex event streams.
 - **Dependency Injection**:
-  - **PREFER** the `inject()` function over constructor injection for cleaner code.
-  - Example: `private route = inject(ActivatedRoute);`
+  - **ALWAYS** use `inject()` function instead of constructor injection.
+  - Example: `private http = inject(HttpClient);`
 - **Control Flow**:
-  - Use the new built-in control flow syntax (`@if`, `@for`, `@switch`) instead of `*ngIf` and `*ngFor`.
+  - Use `@if`, `@for`, `@switch` syntax.
 
-### Build & Run
-- **Run**: `ng serve` (in `restaurant-web/`)
-- **Test**: `ng test`
-- **Build**: `ng build`
+### Integration
+- **API**: Base URL is `http://localhost:8080/api`.
+- **Real-time**: Uses Server-Sent Events (SSE) via `EventSource`.
+- **Auth**: JWT stored in `localStorage` (`auth_token`).
 
-## Common Workflows
-- **New Feature**:
-  1. Define the data model in `restaurant-server`.
-  2. Create a `suspend` controller endpoint.
-  3. Create an Angular service using `HttpClient`.
-  4. Build the UI component using Signals.
+## Workflows
+- **Development**:
+  1. Start DB: `docker-compose up -d` (MySQL).
+  2. Start Server: `./gradlew bootRun` (in `restaurant-server`).
+  3. Start Web: `ng serve` (in `restaurant-web`).
