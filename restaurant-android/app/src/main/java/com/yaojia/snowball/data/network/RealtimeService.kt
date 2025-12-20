@@ -38,8 +38,7 @@ class RealtimeService(
         Log.d("RealtimeService", "Using token: ${token?.take(10)}...")
         
         val request = Request.Builder()
-            .url("${baseUrl}api/orders/stream?restaurantId=$restaurantId")
-            .header("Authorization", "Bearer $token")
+            .url("${baseUrl}api/orders/stream?restaurantId=$restaurantId&token=$token")
             .header("Accept", "text/event-stream")
             .build()
 
