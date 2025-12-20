@@ -86,6 +86,7 @@ class OrderController(
                 restaurantId = order.restaurantId,
                 tableId = order.tableId,
                 customerId = order.customerId,
+                deliveryAddress = order.deliveryAddress,
                 status = order.status.name,
                 subTotal = order.subTotal,
                 tax = order.tax,

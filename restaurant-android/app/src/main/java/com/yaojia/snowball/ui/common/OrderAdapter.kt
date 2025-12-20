@@ -27,7 +27,14 @@ class OrderAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(order: Order) {
-            binding.textTableNumber.text = "Table #${order.tableId}"
+            if (order.tableId != null) {
+                binding.textTableNumber.text = "Table #${order.tableId}"
+            } else if (!order.deliveryAddress.isNullOrEmpty()) {
+                binding.textTableNumber.text = "Delivery: ${order.deliveryAddress}"
+            } else {
+                binding.textTableNumber.text = "Takeout"
+            }
+            
             binding.textOrderStatus.text = order.status
             
             val itemsSummary = order.items.joinToString("\n") { "${it.quantity}x ${it.menuItemName}" }

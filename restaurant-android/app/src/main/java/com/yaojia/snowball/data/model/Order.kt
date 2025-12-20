@@ -5,6 +5,7 @@ data class Order(
     val restaurantId: Long,
     val tableId: Long?,
     val customerId: Long?,
+    val deliveryAddress: String?,
     val status: String,
     val subTotal: Double,
     val tax: Double,

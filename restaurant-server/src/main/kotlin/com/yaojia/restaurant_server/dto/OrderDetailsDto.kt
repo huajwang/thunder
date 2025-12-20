@@ -8,6 +8,7 @@ data class OrderDetailsDto(
     val restaurantId: Long,
     val tableId: Long?,
     val customerId: Long? = null,
+    val deliveryAddress: String? = null,
     val status: String,
     val subTotal: BigDecimal,
     val tax: BigDecimal,
