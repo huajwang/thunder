@@ -45,18 +45,25 @@ class DataSeeder(
     }
 
     private suspend fun seedUsers() {
-        if (userRepository.findByUsername("admin") == null) {
-            val restaurant = restaurantRepository.findBySlug("joes-pizza").firstOrNull()
+        seedUser("joes-pizza", "admin", "password")
+        seedUser("burger-joint", "admin_burger", "password")
+        seedUser("sushi-world", "admin_sushi", "password")
+        seedUser("taco-fiesta", "admin_taco", "password")
+    }
+
+    private suspend fun seedUser(slug: String, username: String, password: String) {
+        if (userRepository.findByUsername(username) == null) {
+            val restaurant = restaurantRepository.findBySlug(slug).firstOrNull()
             if (restaurant != null) {
                 userRepository.save(
                     User(
                         restaurantId = restaurant.id!!,
-                        username = "admin",
-                        password = "password",
+                        username = username,
+                        password = password,
                         role = "ADMIN"
                     )
                 )
-                logger.info("Seeded admin user for joes-pizza")
+                logger.info("Seeded admin user $username for $slug")
             }
         }
     }

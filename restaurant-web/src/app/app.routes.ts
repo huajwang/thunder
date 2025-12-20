@@ -8,6 +8,10 @@ export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { 
+    path: 'privacy-policy', 
+    loadComponent: () => import('./features/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent)
+  },
+  { 
     path: ':slug/kitchen', 
     loadComponent: () => import('./features/kitchen/kitchen.component').then(m => m.KitchenComponent),
     canActivate: [authGuard]
