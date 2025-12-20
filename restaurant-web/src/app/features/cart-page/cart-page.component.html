@@ -42,10 +42,46 @@
       </mat-radio-group>
 
       @if (orderType() === 'delivery') {
-        <mat-form-field appearance="outline" class="address-field">
-          <mat-label>Delivery Address</mat-label>
-          <textarea matInput [ngModel]="deliveryAddress()" (ngModelChange)="deliveryAddress.set($event)" placeholder="Enter your full address" rows="3"></textarea>
-        </mat-form-field>
+        <div class="delivery-form">
+          <div class="search-row">
+            <mat-form-field appearance="outline" class="postal-code-field">
+              <mat-label>Postal Code</mat-label>
+              <input matInput [ngModel]="postalCode()" (ngModelChange)="onPostalCodeChange($event)" placeholder="12345">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Search Address</mat-label>
+              <input matInput [ngModel]="addressQuery()" (ngModelChange)="onAddressSearch($event)" placeholder="Start typing address...">
+              @if (isSearchingAddress()) {
+                  <mat-spinner matSuffix diameter="20"></mat-spinner>
+              }
+            </mat-form-field>
+
+            <button mat-icon-button color="primary" (click)="locateMe()" [disabled]="isLocating()" matTooltip="Use my current location">
+                @if (isLocating()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                    <mat-icon>my_location</mat-icon>
+                }
+            </button>
+          </div>
+          
+          @if (addressSuggestions().length > 0) {
+              <mat-list class="address-suggestions">
+                  @for (suggestion of addressSuggestions(); track suggestion.place_id) {
+                      <mat-list-item (click)="selectAddress(suggestion)" class="suggestion-item">
+                          <mat-icon matListItemIcon>place</mat-icon>
+                          <div matListItemTitle>{{ suggestion.display_name }}</div>
+                      </mat-list-item>
+                  }
+              </mat-list>
+          }
+
+          <mat-form-field appearance="outline" class="address-field">
+            <mat-label>Full Delivery Address</mat-label>
+            <textarea matInput [ngModel]="deliveryAddress()" (ngModelChange)="deliveryAddress.set($event)" placeholder="Enter your full address" rows="3"></textarea>
+          </mat-form-field>
+        </div>
       }
     </div>
 
