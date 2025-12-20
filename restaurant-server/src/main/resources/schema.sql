@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS restaurants (
     image_url VARCHAR(512),
     address VARCHAR(255),
     phone_number VARCHAR(50),
+    latitude DOUBLE,
+    longitude DOUBLE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

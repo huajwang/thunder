@@ -6,6 +6,8 @@ export interface Restaurant {
   imageUrl?: string;
   address?: string;
   phoneNumber?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Category {

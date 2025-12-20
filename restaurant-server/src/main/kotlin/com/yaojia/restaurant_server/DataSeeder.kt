@@ -102,7 +102,9 @@ class DataSeeder(
                 description = "Best Pizza in Town since 1995",
                 imageUrl = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
                 address = "123 Main St, New York, NY",
-                phoneNumber = "555-0199"
+                phoneNumber = "555-0199",
+                latitude = 40.7128,
+                longitude = -74.0060
             )
         )
 
@@ -538,8 +540,10 @@ class DataSeeder(
                 slug = slug,
                 description = "Juicy burgers and crispy fries",
                 imageUrl = "https://images.unsplash.com/photo-1586190848861-99c8a3da7ce3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
-                address = "456 Burger Lane, Food City, FC",
-                phoneNumber = "555-0200"
+                address = "456 Burger Lane, Mountain View, CA",
+                phoneNumber = "555-0200",
+                latitude = 37.3861,
+                longitude = -122.0839
             )
         )
 
@@ -631,7 +635,9 @@ class DataSeeder(
                 description = "Fresh and authentic Japanese sushi",
                 imageUrl = "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
                 address = "789 Sushi St, Tokyo Town, TT",
-                phoneNumber = "555-0300"
+                phoneNumber = "555-0300",
+                latitude = 35.6762,
+                longitude = 139.6503
             )
         )
 
@@ -746,7 +752,9 @@ class DataSeeder(
                 description = "Authentic Mexican street food",
                 imageUrl = "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
                 address = "321 Taco Blvd, Salsa City, SC",
-                phoneNumber = "555-0400"
+                phoneNumber = "555-0400",
+                latitude = 19.4326,
+                longitude = -99.1332
             )
         )
 

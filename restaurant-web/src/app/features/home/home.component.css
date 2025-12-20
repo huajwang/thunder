@@ -24,11 +24,35 @@
 }
 
 .restaurants-section h2 {
-  margin-bottom: 20px;
+  margin: 0;
   font-size: 2rem;
   color: #333;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
   border-bottom: 2px solid #eee;
   padding-bottom: 10px;
+}
+
+.location-loading, .location-found {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.address {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 8px;
 }
 
 .restaurant-grid {

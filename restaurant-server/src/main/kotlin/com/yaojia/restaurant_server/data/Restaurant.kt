@@ -14,6 +14,8 @@ data class Restaurant(
     val imageUrl: String? = null,
     val address: String? = null,
     val phoneNumber: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 )
