@@ -38,6 +38,8 @@ class DataSeeder(
         runBlocking {
             seedJoesPizza()
             seedBurgerJoint()
+            seedSushiWorld()
+            seedTacoFiesta()
             seedUsers()
         }
     }
@@ -608,5 +610,224 @@ class DataSeeder(
         )
         
         logger.info("Seeding Burger Joint completed!")
+    }
+
+    private suspend fun seedSushiWorld() {
+        val slug = "sushi-world"
+        val existingRestaurant = restaurantRepository.findBySlug(slug).firstOrNull()
+        
+        if (existingRestaurant != null) {
+            logger.info("Data already seeded for $slug")
+            return
+        }
+
+        logger.info("Seeding data for $slug...")
+
+        // 1. Create Restaurant
+        val restaurant = restaurantRepository.save(
+            Restaurant(
+                name = "Sushi World",
+                slug = slug,
+                description = "Fresh and authentic Japanese sushi",
+                imageUrl = "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+                address = "789 Sushi St, Tokyo Town, TT",
+                phoneNumber = "555-0300"
+            )
+        )
+
+        // 2. Create Tables
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 1))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 2))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 3))
+
+        // 2.5 Create VIP Config
+        restaurantVipConfigRepository.save(
+            RestaurantVipConfig(
+                restaurantId = restaurant.id!!,
+                isEnabled = true,
+                price = BigDecimal("100.00"),
+                description = "Exclusive Omakase Access",
+                imageUrl = "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+            )
+        )
+
+        // 3. Create Categories
+        val sushi = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Sushi", displayOrder = 1)
+        )
+        val rolls = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Rolls", displayOrder = 2)
+        )
+        val drinks = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Drinks", displayOrder = 3)
+        )
+
+        // 4. Create Menu Items
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = sushi.id,
+                name = "Salmon Nigiri",
+                description = "Fresh salmon over rice",
+                price = BigDecimal("6.00"),
+                imageUrl = "https://images.unsplash.com/photo-1611143669185-af224c5e3252?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = sushi.id,
+                name = "Tuna Nigiri",
+                description = "Fresh tuna over rice",
+                price = BigDecimal("7.00"),
+                imageUrl = "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = rolls.id,
+                name = "California Roll",
+                description = "Crab, avocado, cucumber",
+                price = BigDecimal("8.00"),
+                imageUrl = "https://images.unsplash.com/photo-1579584425555-c3ce17fd436d?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = rolls.id,
+                name = "Spicy Tuna Roll",
+                description = "Spicy tuna, cucumber",
+                price = BigDecimal("9.00"),
+                imageUrl = "https://images.unsplash.com/photo-1579584425555-c3ce17fd436d?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = drinks.id,
+                name = "Green Tea",
+                description = "Hot green tea",
+                price = BigDecimal("2.00"),
+                imageUrl = "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = drinks.id,
+                name = "Sake",
+                description = "Japanese rice wine",
+                price = BigDecimal("8.00"),
+                imageUrl = "https://images.unsplash.com/photo-1582234279500-4b9f9e2b5b9e?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+
+        logger.info("Seeding Sushi World completed!")
+    }
+
+    private suspend fun seedTacoFiesta() {
+        val slug = "taco-fiesta"
+        val existingRestaurant = restaurantRepository.findBySlug(slug).firstOrNull()
+        
+        if (existingRestaurant != null) {
+            logger.info("Data already seeded for $slug")
+            return
+        }
+
+        logger.info("Seeding data for $slug...")
+
+        // 1. Create Restaurant
+        val restaurant = restaurantRepository.save(
+            Restaurant(
+                name = "Taco Fiesta",
+                slug = slug,
+                description = "Authentic Mexican street food",
+                imageUrl = "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+                address = "321 Taco Blvd, Salsa City, SC",
+                phoneNumber = "555-0400"
+            )
+        )
+
+        // 2. Create Tables
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 1))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 2))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 3))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 4))
+
+        // 2.5 Create VIP Config (Disabled)
+        restaurantVipConfigRepository.save(
+            RestaurantVipConfig(
+                restaurantId = restaurant.id!!,
+                isEnabled = false,
+                price = BigDecimal("0.00")
+            )
+        )
+
+        // 3. Create Categories
+        val tacos = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Tacos", displayOrder = 1)
+        )
+        val burritos = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Burritos", displayOrder = 2)
+        )
+        val sides = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Sides", displayOrder = 3)
+        )
+
+        // 4. Create Menu Items
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = tacos.id,
+                name = "Carne Asada Taco",
+                description = "Grilled steak taco with onions and cilantro",
+                price = BigDecimal("3.50"),
+                imageUrl = "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = tacos.id,
+                name = "Al Pastor Taco",
+                description = "Marinated pork taco with pineapple",
+                price = BigDecimal("3.50"),
+                imageUrl = "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = burritos.id,
+                name = "Bean and Cheese Burrito",
+                description = "Beans and cheese wrapped in a flour tortilla",
+                price = BigDecimal("6.00"),
+                imageUrl = "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = burritos.id,
+                name = "Chicken Burrito",
+                description = "Grilled chicken, rice, beans, and salsa",
+                price = BigDecimal("8.00"),
+                imageUrl = "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = sides.id,
+                name = "Chips and Guacamole",
+                description = "Fresh tortilla chips with homemade guacamole",
+                price = BigDecimal("5.00"),
+                imageUrl = "https://images.unsplash.com/photo-1576097449798-7c7f90e123a6?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+
+        logger.info("Seeding Taco Fiesta completed!")
     }
 }
