@@ -4,6 +4,7 @@ data class OrderRequest(
     val restaurantId: Long,
     val tableId: Long?,
     val customerId: Long? = null,
+    val deliveryAddress: String? = null,
     val items: List<OrderItemRequest>
 )
 

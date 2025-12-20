@@ -114,6 +114,31 @@ mat-list-item:hover {
   color: #2c3e50;
 }
 
+.order-options {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.order-options h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.address-field {
+  width: 100%;
+  margin-top: 8px;
+}
+
 .error-msg {
   background-color: #ffebee;
   color: #c62828;

@@ -38,6 +38,7 @@ export interface OrderRequest {
   restaurantId: number;
   tableId?: number;
   customerId?: number;
+  deliveryAddress?: string;
   items: OrderItemRequest[];
 }
 

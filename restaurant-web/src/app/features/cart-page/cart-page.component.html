@@ -32,6 +32,23 @@
       <span class="total-amount">${{ cartService.totalAmount().toFixed(2) }}</span>
     </div>
 
+    <div class="order-options">
+      <h3>Order Type</h3>
+      <mat-radio-group [ngModel]="orderType()" (ngModelChange)="orderType.set($event)">
+        @if (cartService.tableId()) {
+          <mat-radio-button value="dine-in">Dine In (Table #{{ cartService.tableId() }})</mat-radio-button>
+        }
+        <mat-radio-button value="delivery">Delivery</mat-radio-button>
+      </mat-radio-group>
+
+      @if (orderType() === 'delivery') {
+        <mat-form-field appearance="outline" class="address-field">
+          <mat-label>Delivery Address</mat-label>
+          <textarea matInput [ngModel]="deliveryAddress()" (ngModelChange)="deliveryAddress.set($event)" placeholder="Enter your full address" rows="3"></textarea>
+        </mat-form-field>
+      }
+    </div>
+
     @if (error) {
       <p class="error-msg">{{ error }}</p>
     }
