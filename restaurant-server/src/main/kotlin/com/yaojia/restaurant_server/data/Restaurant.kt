@@ -16,6 +16,7 @@ data class Restaurant(
     val phoneNumber: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val businessHours: String? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 )

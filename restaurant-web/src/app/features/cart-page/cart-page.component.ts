@@ -46,6 +46,7 @@ export class CartPageComponent {
   
   orderType = signal<'dine-in' | 'delivery'>('dine-in');
   deliveryAddress = signal<string>('');
+  phoneNumber = signal<string>('');
   
   // Address Search
   postalCode = signal<string>('');
@@ -84,6 +85,13 @@ export class CartPageComponent {
   onPostalCodeChange(code: string) {
     this.postalCode.set(code);
     this.triggerSearch();
+  }
+
+  onPhoneNumberChange(phone: string) {
+    this.phoneNumber.set(phone);
+    if (this.error === 'Please enter a phone number.' && phone) {
+      this.error = null;
+    }
   }
 
   private triggerSearch() {
@@ -177,9 +185,15 @@ export class CartPageComponent {
       return;
     }
 
-    if (this.orderType() === 'delivery' && !this.deliveryAddress()) {
-      this.error = 'Please enter a delivery address.';
-      return;
+    if (this.orderType() === 'delivery') {
+      if (!this.deliveryAddress()) {
+        this.error = 'Please enter a delivery address.';
+        return;
+      }
+      if (!this.phoneNumber()) {
+        this.error = 'Please enter a phone number.';
+        return;
+      }
     }
 
     this.isSubmitting = true;
@@ -190,6 +204,7 @@ export class CartPageComponent {
       tableId: this.orderType() === 'dine-in' ? (this.cartService.tableId() || undefined) : undefined,
       customerId: this.cartService.customerId() || undefined,
       deliveryAddress: this.orderType() === 'delivery' ? this.deliveryAddress() : undefined,
+      phoneNumber: this.orderType() === 'delivery' ? this.phoneNumber() : undefined,
       items: this.cartService.items().map(item => ({
         menuItemId: item.menuItem.id,
         quantity: item.quantity

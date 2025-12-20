@@ -8,6 +8,7 @@ export interface Restaurant {
   phoneNumber?: string;
   latitude?: number;
   longitude?: number;
+  businessHours?: string;
 }
 
 export interface Category {
@@ -39,6 +40,7 @@ export interface OrderRequest {
   tableId?: number;
   customerId?: number;
   deliveryAddress?: string;
+  phoneNumber?: string;
   items: OrderItemRequest[];
 }
 
@@ -60,6 +62,8 @@ export interface OrderDetails {
   restaurantId: number;
   tableId?: number;
   customerId?: number;
+  deliveryAddress?: string;
+  phoneNumber?: string;
   status: string;
   subTotal: number;
   tax: number;

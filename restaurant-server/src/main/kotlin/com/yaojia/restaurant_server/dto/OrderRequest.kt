@@ -5,6 +5,7 @@ data class OrderRequest(
     val tableId: Long?,
     val customerId: Long? = null,
     val deliveryAddress: String? = null,
+    val phoneNumber: String? = null,
     val items: List<OrderItemRequest>
 )
 

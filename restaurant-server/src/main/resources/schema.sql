@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     phone_number VARCHAR(50),
     latitude DOUBLE,
     longitude DOUBLE,
+    business_hours VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -102,6 +103,7 @@ CREATE TABLE IF NOT EXISTS orders (
     discount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     total_amount DECIMAL(10, 2) NOT NULL,
     delivery_address VARCHAR(512),
+    phone_number VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id),

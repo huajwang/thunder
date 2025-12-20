@@ -9,6 +9,7 @@ data class OrderDetailsDto(
     val tableId: Long?,
     val customerId: Long? = null,
     val deliveryAddress: String? = null,
+    val phoneNumber: String? = null,
     val status: String,
     val subTotal: BigDecimal,
     val tax: BigDecimal,

@@ -19,6 +19,7 @@ data class Order(
     val discount: BigDecimal,
     val totalAmount: BigDecimal,
     val deliveryAddress: String? = null,
+    val phoneNumber: String? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 )

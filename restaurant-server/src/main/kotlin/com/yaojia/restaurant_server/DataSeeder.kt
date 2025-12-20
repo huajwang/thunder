@@ -104,7 +104,8 @@ class DataSeeder(
                 address = "123 Main St, New York, NY",
                 phoneNumber = "555-0199",
                 latitude = 40.7128,
-                longitude = -74.0060
+                longitude = -74.0060,
+                businessHours = "Mon-Sun: 11:00 AM - 11:00 PM"
             )
         )
 
@@ -543,7 +544,8 @@ class DataSeeder(
                 address = "456 Burger Lane, Mountain View, CA",
                 phoneNumber = "555-0200",
                 latitude = 37.3861,
-                longitude = -122.0839
+                longitude = -122.0839,
+                businessHours = "Mon-Sat: 11:00 AM - 10:00 PM, Sun: 12:00 PM - 9:00 PM"
             )
         )
 
@@ -634,10 +636,11 @@ class DataSeeder(
                 slug = slug,
                 description = "Fresh and authentic Japanese sushi",
                 imageUrl = "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
-                address = "789 Sushi St, Tokyo Town, TT",
-                phoneNumber = "555-0300",
-                latitude = 35.6762,
-                longitude = 139.6503
+                address = "583 King St N, Waterloo, ON N2V 2E5",
+                phoneNumber = "519-789-0300",
+                latitude = 43.50179,
+                longitude = -80.53403,
+                businessHours = "Tue-Sun: 12:00 PM - 10:00 PM, Mon: Closed"
             )
         )
 
@@ -754,7 +757,8 @@ class DataSeeder(
                 address = "321 Taco Blvd, Salsa City, SC",
                 phoneNumber = "555-0400",
                 latitude = 19.4326,
-                longitude = -99.1332
+                longitude = -99.1332,
+                businessHours = "Mon-Sun: 10:00 AM - 12:00 AM"
             )
         )
 

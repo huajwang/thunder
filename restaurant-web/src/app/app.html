@@ -3,19 +3,6 @@
     <mat-icon>menu</mat-icon>
   </button>
   <mat-menu #menu="matMenu">
-    <button mat-menu-item routerLink="/">
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </button>
-    <button mat-menu-item>
-      <mat-icon>restaurant_menu</mat-icon>
-      <span>Menu</span>
-    </button>
-    <button mat-menu-item>
-      <mat-icon>info</mat-icon>
-      <span>About Us</span>
-    </button>
-
     @if (cartService.restaurantId()) {
       @if (cartService.customerInfo(); as customer) {
         <button mat-menu-item>
@@ -32,6 +19,20 @@
         </button>
       }
     }
+    <button mat-menu-item routerLink="/">
+      <mat-icon>home</mat-icon>
+      <span>Home</span>
+    </button>
+    @if (cartService.restaurantSlug(); as slug) {
+      <button mat-menu-item [routerLink]="['/', slug, 'location']">
+        <mat-icon>location_on</mat-icon>
+        <span>Location</span>
+      </button>
+    }
+    <button mat-menu-item>
+      <mat-icon>info</mat-icon>
+      <span>Privacy Policy</span>
+    </button>
   </mat-menu>
 
   <span class="spacer"></span>
