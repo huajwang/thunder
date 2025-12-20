@@ -24,6 +24,10 @@ export const routes: Routes = [
     path: ':slug/vip', 
     loadComponent: () => import('./features/vip-page/vip-page.component').then(m => m.VipPageComponent)
   },
+  { 
+    path: ':slug/search', 
+    loadComponent: () => import('./features/search/search.component').then(m => m.SearchComponent)
+  },
   { path: ':slug', component: RestaurantMenuComponent },
   { path: ':slug/table/:tableNumber', component: RestaurantMenuComponent }
 ];

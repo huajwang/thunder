@@ -48,7 +48,7 @@ export class RestaurantMenuComponent implements OnInit {
         }
         
         // Set context for CartService
-        this.cartService.setContext(data.restaurant.id, data.restaurant.name, this.currentTable());
+        this.cartService.setContext(data.restaurant.id, data.restaurant.slug, data.restaurant.name, this.currentTable());
 
         // Check VIP status
         this.restaurantService.getVipConfig(data.restaurant.id).subscribe({

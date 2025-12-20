@@ -308,3 +308,35 @@
   margin-left: 5px;
 }
 
+
+.search-container {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.search-field {
+  width: 100%;
+}
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.2rem;
+  grid-column: 1 / -1;
+}
+
+
+.search-trigger-btn {
+  margin-right: 10px;
+}
+
+
+.search-container {
+  position: relative;
+  z-index: 10;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+

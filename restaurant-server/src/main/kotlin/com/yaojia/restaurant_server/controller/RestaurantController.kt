@@ -39,6 +39,11 @@ class RestaurantController(
         return menuItemRepository.findByRestaurantId(id)
     }
 
+    @GetMapping("/{id}/menu-items/search")
+    fun searchMenuItems(@PathVariable id: Long, @RequestParam q: String): Flow<MenuItem> {
+        return menuItemRepository.searchByRestaurantIdAndQuery(id, q)
+    }
+
     @GetMapping("/{id}/vip-config")
     suspend fun getVipConfig(@PathVariable id: Long): RestaurantVipConfig {
         return restaurantVipConfigRepository.findByRestaurantId(id)

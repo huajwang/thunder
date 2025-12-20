@@ -78,6 +78,10 @@ export class RestaurantService {
     return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurantId}/menu-items`);
   }
 
+  searchMenuItems(restaurantId: number, query: string): Observable<MenuItem[]> {
+    return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurantId}/menu-items/search?q=${query}`);
+  }
+
   getVipConfig(restaurantId: number): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/restaurants/${restaurantId}/vip-config`);
   }

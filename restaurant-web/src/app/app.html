@@ -49,9 +49,11 @@
     }
   </div>
 
-  <button mat-icon-button aria-label="Search">
-    <mat-icon>search</mat-icon>
-  </button>
+  @if (cartService.restaurantSlug()) {
+    <button mat-icon-button aria-label="Search" [routerLink]="['/', cartService.restaurantSlug(), 'search']">
+      <mat-icon>search</mat-icon>
+    </button>
+  }
 
   <button mat-icon-button aria-label="Shopping cart" (click)="openCart()">
     <mat-icon [matBadge]="cartService.totalCount()" [matBadgeHidden]="cartService.totalCount() === 0" matBadgeColor="warn">shopping_cart</mat-icon>

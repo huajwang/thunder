@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,6 +14,7 @@ import { MemberLoginDialogComponent } from './features/customer/member-login-dia
   selector: 'app-root',
   imports: [
     RouterOutlet, 
+    RouterModule,
     MatToolbarModule, 
     MatButtonModule, 
     MatIconModule, 
