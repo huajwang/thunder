@@ -29,6 +29,11 @@ class RestaurantController(
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found")
     }
 
+    @GetMapping
+    fun getAllRestaurants(): Flow<Restaurant> {
+        return restaurantRepository.findAll()
+    }
+
     @GetMapping("/{id}/categories")
     fun getCategories(@PathVariable id: Long): Flow<Category> {
         return categoryRepository.findByRestaurantIdOrderByDisplayOrderAsc(id)

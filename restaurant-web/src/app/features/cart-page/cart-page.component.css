@@ -1,0 +1,139 @@
+.cart-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fafafa;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 16px;
+}
+
+.empty-cart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 0;
+  color: #888;
+}
+
+.empty-cart mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  color: #ddd;
+}
+
+.empty-cart p {
+  font-size: 18px;
+  margin-bottom: 24px;
+}
+
+/* Customizing mat-list */
+mat-list {
+  padding-top: 0 !important;
+}
+
+mat-list-item {
+  height: auto !important;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+mat-list-item:hover {
+  background-color: #eaeaea;
+}
+
+[matListItemTitle] {
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #333;
+}
+
+[matListItemLine] {
+  font-size: 14px !important;
+  color: #666;
+  margin-top: 4px;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 20px;
+  padding: 2px;
+}
+
+.qty-controls button {
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+}
+
+.qty-controls mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.qty {
+  margin: 0 12px;
+  font-weight: 600;
+  min-width: 20px;
+  text-align: center;
+  font-size: 15px;
+}
+
+.total-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 2px dashed #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-label {
+  font-size: 18px;
+  color: #666;
+}
+
+.total-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.error-msg {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.actions button[mat-raised-button] {
+  padding: 0 32px;
+  height: 48px;
+  font-size: 16px;
+  border-radius: 24px;
+}

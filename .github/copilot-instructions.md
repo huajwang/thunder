@@ -18,6 +18,7 @@ This is a full-stack monorepo application containing:
   - `repo/`: Data access (`CoroutineCrudRepository`).
   - `data/`: Entities (`data class`).
   - `dto/`: Data Transfer Objects.
+  - `security/`: JWT and auth configuration.
 
 ### Coding Conventions
 - **Reactive/Async**:
@@ -40,9 +41,9 @@ This is a full-stack monorepo application containing:
 ### Architecture & Stack
 - **Framework**: Angular 20.3.
 - **UI Library**: Angular Material 20.2.
-- **Structure**: Feature-based:
-  - `src/app/core/`: Singleton services, models, guards, interceptors.
-  - `src/app/features/`: Feature modules (e.g., `auth`, `restaurant-menu`).
+- **Structure**: Feature-based in `src/app/`:
+  - `core/`: Singleton services, models, guards, interceptors.
+  - `features/`: Feature modules (e.g., `auth`, `cart-page`, `restaurant-menu`, `vip-page`).
 
 ### Coding Conventions
 - **Components**:
@@ -67,9 +68,17 @@ This is a full-stack monorepo application containing:
 ### Architecture & Stack
 - **Language**: Kotlin 2.0.21.
 - **SDK**: Min 24, Target 36.
+- **Package**: `com.yaojia.snowball`
 - **UI System**: View-based (XML) with **ViewBinding**.
-- **Navigation**: Jetpack Navigation Component (Single Activity, Multiple Fragments).
+- **Navigation**: Jetpack Navigation Component (Single Activity `MainActivity`, Multiple Fragments).
 - **Architecture**: MVVM (Model-View-ViewModel).
+
+### Structure
+- `ui/`: Feature-based packages containing Fragments and ViewModels.
+  - `ui/tables/`: `TablesFragment`, `TablesViewModel`.
+  - `ui/kitchen/`: Kitchen view features.
+  - `ui/staff/`: Staff management features.
+- `data/`: Repositories and data models.
 
 ### Coding Conventions
 - **UI Access**:
@@ -80,7 +89,7 @@ This is a full-stack monorepo application containing:
   - Define arguments in `navigation/mobile_navigation.xml` (Safe Args).
 - **State**:
   - Use `ViewModel` to hold UI state.
-  - Expose state via `LiveData` or `StateFlow` (prefer `StateFlow` for new code, though `LiveData` is currently used).
+  - Expose state via `LiveData` or `StateFlow` (prefer `StateFlow` for new code).
 - **Threading**:
   - Use `viewModelScope` for coroutines launched from ViewModels.
 

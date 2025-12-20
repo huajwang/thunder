@@ -70,6 +70,10 @@ export class RestaurantService {
     return this.http.get<Restaurant>(`${this.API_URL}/restaurants/slug/${slug}`);
   }
 
+  getRestaurants(): Observable<Restaurant[]> {
+    return this.http.get<Restaurant[]>(`${this.API_URL}/restaurants`);
+  }
+
   getCategories(restaurantId: number): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.API_URL}/restaurants/${restaurantId}/categories`);
   }

@@ -1,6 +1,6 @@
-import { Component, inject, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -10,28 +10,25 @@ import { RestaurantService } from '../../core/services/restaurant.service';
 import { OrderRequest } from '../../core/models/restaurant.types';
 
 @Component({
-  selector: 'app-cart-dialog',
+  selector: 'app-cart-page',
   standalone: true,
   imports: [
     CommonModule, 
-    MatDialogModule, 
     MatButtonModule, 
     MatIconModule, 
     MatListModule,
     MatProgressSpinnerModule
   ],
-  templateUrl: './cart-dialog.component.html',
-  styleUrl: './cart-dialog.component.css'
+  templateUrl: './cart-page.component.html',
+  styleUrl: './cart-page.component.css'
 })
-export class CartDialogComponent {
+export class CartPageComponent {
   cartService = inject(CartService);
   private restaurantService = inject(RestaurantService);
-  private dialogRef = inject(MatDialogRef<CartDialogComponent>);
+  private router = inject(Router);
 
   isSubmitting = false;
   error: string | null = null;
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { restaurantId: number, tableId?: number }) {}
 
   increaseQuantity(itemId: number, currentQty: number) {
     this.cartService.updateQuantity(itemId, currentQty + 1);
@@ -41,15 +38,36 @@ export class CartDialogComponent {
     this.cartService.updateQuantity(itemId, currentQty - 1);
   }
 
+  goBack() {
+    const slug = this.cartService.restaurantSlug();
+    const tableId = this.cartService.tableId();
+    if (slug) {
+      if (tableId) {
+        this.router.navigate(['/', slug, 'table', tableId]);
+      } else {
+        this.router.navigate(['/', slug]);
+      }
+    } else {
+      // Fallback if no slug is present (shouldn't happen in normal flow)
+      this.router.navigate(['/']);
+    }
+  }
+
   placeOrder() {
     if (this.cartService.items().length === 0) return;
+
+    const restaurantId = this.cartService.restaurantId();
+    if (!restaurantId) {
+      this.error = 'Restaurant information missing.';
+      return;
+    }
 
     this.isSubmitting = true;
     this.error = null;
 
     const orderRequest: OrderRequest = {
-      restaurantId: this.data.restaurantId,
-      tableId: this.data.tableId,
+      restaurantId: restaurantId,
+      tableId: this.cartService.tableId() || undefined,
       customerId: this.cartService.customerId() || undefined,
       items: this.cartService.items().map(item => ({
         menuItemId: item.menuItem.id,
@@ -61,9 +79,8 @@ export class CartDialogComponent {
       next: (response) => {
         this.isSubmitting = false;
         this.cartService.clearCart();
-        this.dialogRef.close(true); // Close with success
-        // Ideally show a success snackbar or navigate to order status
         alert(`Order placed successfully! Order ID: ${response.id}`);
+        this.goBack();
       },
       error: (err) => {
         console.error('Order failed', err);

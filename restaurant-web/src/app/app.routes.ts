@@ -1,9 +1,11 @@
 import { Routes } from '@angular/router';
 import { RestaurantMenuComponent } from './features/restaurant-menu/restaurant-menu.component';
 import { LoginComponent } from './features/auth/login.component';
+import { HomeComponent } from './features/home/home.component';
 import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
+  { path: '', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { 
     path: ':slug/kitchen', 
@@ -27,6 +29,10 @@ export const routes: Routes = [
   { 
     path: ':slug/search', 
     loadComponent: () => import('./features/search/search.component').then(m => m.SearchComponent)
+  },
+  { 
+    path: ':slug/cart', 
+    loadComponent: () => import('./features/cart-page/cart-page.component').then(m => m.CartPageComponent)
   },
   { path: ':slug', component: RestaurantMenuComponent },
   { path: ':slug/table/:tableNumber', component: RestaurantMenuComponent }
