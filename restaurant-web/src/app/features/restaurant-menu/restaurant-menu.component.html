@@ -11,7 +11,7 @@
             <p>{{ rest.description }}</p>
           </div>
           <div class="header-actions">
-            @if (isVipEnabled()) {
+            @if (isVipEnabled() && !cartService.customerInfo()) {
               <button mat-raised-button color="accent" class="vip-button" 
                 [routerLink]="['/', rest.slug, 'vip']"
                 [queryParams]="currentTable() ? { table: currentTable() } : {}">

@@ -6,7 +6,7 @@
     @if (cartService.restaurantId()) {
       @if (cartService.customerInfo(); as customer) {
         <button mat-menu-item>
-          <mat-icon>verified_user</mat-icon>
+          <mat-icon class="menu-icon user-guest">person_outline</mat-icon>
           <span>{{ customer.phoneNumber }}</span>
           @if (customer.isMember) {
              (VIP)
@@ -19,10 +19,6 @@
         </button>
       }
     }
-    <button mat-menu-item routerLink="/">
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </button>
     @if (cartService.restaurantSlug(); as slug) {
       <button mat-menu-item [routerLink]="['/', slug, 'location']">
         <mat-icon>location_on</mat-icon>
