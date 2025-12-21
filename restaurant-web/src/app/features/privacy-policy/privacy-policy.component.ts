@@ -1,5 +1,5 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,11 +18,15 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="privacy-container">
       <mat-card>
-        <mat-card-header>
-          <mat-icon mat-card-avatar color="primary">security</mat-icon>
-          <mat-card-title>Privacy Policy</mat-card-title>
-          <mat-card-subtitle>Last updated: December 20, 2025</mat-card-subtitle>
-        </mat-card-header>
+        <div class="header-row">
+          <button mat-icon-button (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div class="header-content">
+            <mat-card-title>Privacy Policy</mat-card-title>
+            <mat-card-subtitle>Last updated: December 20, 2025</mat-card-subtitle>
+          </div>
+        </div>
         <mat-card-content>
           <div class="policy-content">
             <section>
@@ -63,9 +67,6 @@ import { RouterLink } from '@angular/router';
             </section>
           </div>
         </mat-card-content>
-        <mat-card-actions>
-          <button mat-button color="primary" routerLink="/">Back to Home</button>
-        </mat-card-actions>
       </mat-card>
     </div>
   `,
@@ -76,14 +77,17 @@ import { RouterLink } from '@angular/router';
       padding: 0 16px;
     }
     
-    mat-card-header {
+    .header-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 16px 0;
+      gap: 8px;
       margin-bottom: 24px;
     }
 
-    mat-card-avatar {
+    .header-content {
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
     }
 
     .policy-content {
@@ -111,4 +115,10 @@ import { RouterLink } from '@angular/router';
     }
   `]
 })
-export class PrivacyPolicyComponent {}
+export class PrivacyPolicyComponent {
+  private location = inject(Location);
+
+  goBack() {
+    this.location.back();
+  }
+}

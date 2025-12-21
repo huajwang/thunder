@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,10 +27,15 @@ import { Restaurant } from '../../core/models/restaurant.types';
         </div>
       } @else if (restaurant(); as rest) {
         <mat-card class="location-card">
-          <mat-card-header>
-            <mat-card-title>{{ rest.name }}</mat-card-title>
-            <mat-card-subtitle>{{ rest.address }}</mat-card-subtitle>
-          </mat-card-header>
+          <div class="header-row">
+            <button mat-icon-button (click)="goBack()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <div class="header-text">
+              <mat-card-title>{{ rest.name }}</mat-card-title>
+              <mat-card-subtitle>{{ rest.address }}</mat-card-subtitle>
+            </div>
+          </div>
           
           <mat-card-content>
             <div class="map-container">
@@ -86,6 +91,16 @@ import { Restaurant } from '../../core/models/restaurant.types';
     .location-card {
       margin-bottom: 20px;
     }
+    .header-row {
+      display: flex;
+      align-items: center;
+      padding: 16px 16px 0;
+      gap: 8px;
+    }
+    .header-text {
+      display: flex;
+      flex-direction: column;
+    }
     .map-container {
       margin: 20px 0;
       border-radius: 8px;
@@ -128,6 +143,7 @@ export class LocationPageComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private restaurantService = inject(RestaurantService);
   private sanitizer = inject(DomSanitizer);
+  private location = inject(Location);
 
   restaurant = signal<Restaurant | null>(null);
   loading = signal<boolean>(true);
@@ -140,6 +156,10 @@ export class LocationPageComponent implements OnInit {
         this.loadRestaurant(slug);
       }
     });
+  }
+
+  goBack() {
+    this.location.back();
   }
 
   private loadRestaurant(slug: string) {
