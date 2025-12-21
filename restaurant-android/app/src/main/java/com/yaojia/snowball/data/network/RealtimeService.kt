@@ -61,6 +61,12 @@ class RealtimeService(
                 Log.e("RealtimeService", "Connection failed: ${t?.message}", t)
                 if (response != null) {
                     Log.e("RealtimeService", "Response code: ${response.code}")
+                    if (response.code == 401) {
+                        Log.e("RealtimeService", "Token expired. Clearing token.")
+                        tokenManager.clearToken()
+                        close(Exception("Unauthorized"))
+                        return
+                    }
                 }
             }
         }

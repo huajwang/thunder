@@ -12,6 +12,7 @@ class JwtUtil {
     private val secret = "ThisIsASecretKeyForJwtTokenGenerationAndValidation1234567890"
     private val key: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
     private val expirationTime = 86400000L // 1 day
+    private val refreshExpirationTime = 2592000000L // 30 days
 
     fun generateToken(username: String, restaurantId: Long, role: String): String {
         return Jwts.builder()
@@ -20,6 +21,15 @@ class JwtUtil {
             .claim("role", role)
             .issuedAt(Date())
             .expiration(Date(System.currentTimeMillis() + expirationTime))
+            .signWith(key)
+            .compact()
+    }
+
+    fun generateRefreshToken(username: String): String {
+        return Jwts.builder()
+            .subject(username)
+            .issuedAt(Date())
+            .expiration(Date(System.currentTimeMillis() + refreshExpirationTime))
             .signWith(key)
             .compact()
     }

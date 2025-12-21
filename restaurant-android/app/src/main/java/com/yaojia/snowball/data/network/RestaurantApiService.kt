@@ -2,6 +2,7 @@ package com.yaojia.snowball.data.network
 
 import com.yaojia.snowball.data.model.AuthRequest
 import com.yaojia.snowball.data.model.AuthResponse
+import com.yaojia.snowball.data.model.RefreshTokenRequest
 import com.yaojia.snowball.data.model.Order
 import com.yaojia.snowball.data.model.Table
 import retrofit2.http.Body
@@ -15,6 +16,9 @@ interface RestaurantApiService {
 
     @POST("/api/auth/login")
     suspend fun login(@Body request: AuthRequest): AuthResponse
+
+    @POST("/api/auth/refresh")
+    suspend fun refreshToken(@Body request: RefreshTokenRequest): AuthResponse
 
     @GET("/api/orders")
     suspend fun getOrders(

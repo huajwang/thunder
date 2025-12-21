@@ -10,12 +10,20 @@ class TokenManager(context: Context) {
         prefs.edit().putString("jwt_token", token).apply()
     }
 
+    fun saveRefreshToken(token: String) {
+        prefs.edit().putString("refresh_token", token).apply()
+    }
+
     fun getToken(): String? {
         return prefs.getString("jwt_token", null)
     }
 
+    fun getRefreshToken(): String? {
+        return prefs.getString("refresh_token", null)
+    }
+
     fun clearToken() {
-        prefs.edit().remove("jwt_token").apply()
+        prefs.edit().remove("jwt_token").remove("refresh_token").apply()
     }
     
     fun saveRestaurantId(id: Long) {

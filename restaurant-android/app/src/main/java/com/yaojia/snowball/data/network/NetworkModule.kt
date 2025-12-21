@@ -12,6 +12,7 @@ object NetworkModule {
     // TODO: Replace with your actual server IP if running on a real device.
     // 10.0.2.2 is the localhost alias for the Android Emulator.
     // For physical device, use your computer's local IP (e.g., 10.0.0.212)
+    // $ ipconfig
     private const val BASE_URL = "http://10.0.0.212:8080/"
 
     private lateinit var tokenManager: TokenManager
