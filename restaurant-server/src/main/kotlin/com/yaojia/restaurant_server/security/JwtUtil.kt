@@ -2,19 +2,25 @@ package com.yaojia.restaurant_server.security
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.util.Date
 import javax.crypto.SecretKey
 
 @Component
-class JwtUtil {
+class JwtUtil(
+    @Value("\${jwt.expiration}") private val expirationTime: Long,
+    @Value("\${jwt.refresh-expiration}") private val refreshExpirationTime: Long
+) {
+    private val logger = LoggerFactory.getLogger(JwtUtil::class.java)
+
     // In production, use a secure key from configuration
     private val secret = "ThisIsASecretKeyForJwtTokenGenerationAndValidation1234567890"
     private val key: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
-    private val expirationTime = 86400000L // 1 day
-    private val refreshExpirationTime = 2592000000L // 30 days
 
     fun generateToken(username: String, restaurantId: Long, role: String): String {
+        logger.info("Generating access token for user: $username, expires in: $expirationTime ms")
         return Jwts.builder()
             .subject(username)
             .claim("restaurantId", restaurantId)
@@ -26,6 +32,7 @@ class JwtUtil {
     }
 
     fun generateRefreshToken(username: String): String {
+        logger.info("Generating refresh token for user: $username, expires in: $refreshExpirationTime ms")
         return Jwts.builder()
             .subject(username)
             .issuedAt(Date())
@@ -43,7 +50,7 @@ class JwtUtil {
             true
         } catch (e: Exception) {
             // Log the exception for debugging
-            println("Token validation error: ${e.message}")
+            logger.warn("Token validation error: ${e.message}")
             false
         }
     }

@@ -63,10 +63,14 @@ class RealtimeService(
                     Log.e("RealtimeService", "Response code: ${response.code}")
                     if (response.code == 401) {
                         Log.e("RealtimeService", "Token expired. Clearing token.")
-                        tokenManager.clearToken()
-                        close(Exception("Unauthorized"))
+                        tokenManager.clearToken(LogoutReason.SESSION_EXPIRED)
+                        close()
                         return
                     }
+                } else {
+                    // Sometimes response is null but it's an auth failure (e.g. during handshake)
+                    // We can try to check if the token is still valid or just retry
+                    // But if the server closed connection due to auth, we might not get a response object here depending on OkHttp version/implementation
                 }
             }
         }

@@ -29,6 +29,12 @@ class RestaurantController(
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found")
     }
 
+    @GetMapping("/{id}")
+    suspend fun getRestaurantById(@PathVariable id: Long): Restaurant {
+        return restaurantRepository.findById(id)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found")
+    }
+
     @GetMapping
     fun getAllRestaurants(): Flow<Restaurant> {
         return restaurantRepository.findAll()

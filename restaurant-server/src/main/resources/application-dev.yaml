@@ -10,3 +10,7 @@ spring:
 
 oss:
   bucket-name: "yaojia-restaurant-dev"
+
+jwt:
+  expiration: 60000 # 1 minute
+  refresh-expiration: 180000 # 3 minutes
