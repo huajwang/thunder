@@ -30,6 +30,7 @@ class SecurityConfig {
             .authorizeExchange { exchanges ->
                 exchanges
                     .pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                    .pathMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                     .pathMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll()
                     .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
                     .pathMatchers("/api/customers/login/**").permitAll()

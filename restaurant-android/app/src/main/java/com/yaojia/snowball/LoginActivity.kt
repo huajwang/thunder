@@ -42,6 +42,7 @@ class LoginActivity : AppCompatActivity() {
                 val response = NetworkModule.apiService.login(AuthRequest(username, password))
                 
                 NetworkModule.getTokenManager().saveToken(response.token)
+                NetworkModule.getTokenManager().saveRefreshToken(response.refreshToken)
                 NetworkModule.getTokenManager().saveRestaurantId(response.restaurantId)
 
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))

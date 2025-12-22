@@ -13,4 +13,4 @@ oss:
 
 jwt:
   expiration: 60000 # 1 minute
-  refresh-expiration: 180000 # 3 minutes
+  refresh-expiration: 300000 # 5 minutes

@@ -30,7 +30,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (NetworkModule.getTokenManager().getToken() == null) {
+        val tokenManager = NetworkModule.getTokenManager()
+        if (tokenManager.getToken() == null || tokenManager.getRefreshToken() == null) {
+            // If either token is missing, force login
+            tokenManager.clearToken(LogoutReason.SESSION_EXPIRED)
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
