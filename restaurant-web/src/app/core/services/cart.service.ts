@@ -32,13 +32,16 @@ export class CartService {
     this.cartItems().reduce((acc, item) => acc + (item.menuItem.price * item.quantity), 0)
   );
 
+  readonly hasVipItem = computed(() => 
+    this.cartItems().some(item => item.menuItem.id === -999 || item.menuItem.name === 'VIP Membership')
+  );
+
   readonly taxRate = TAX_RATE;
 
   readonly discountAmount = computed(() => {
     const items = this.cartItems();
-    const hasVipItem = items.some(item => item.menuItem.id === -999 || item.menuItem.name === 'VIP Membership');
     
-    if (this.customerInfo()?.isMember || hasVipItem) {
+    if (this.customerInfo()?.isMember || this.hasVipItem()) {
       // Calculate discountable amount (exclude VIP membership item)
       const discountableAmount = items.reduce((acc, item) => {
         if (item.menuItem.id === -999 || item.menuItem.name === 'VIP Membership') {
@@ -64,6 +67,10 @@ export class CartService {
     this.discountedSubTotal() + this.taxAmount()
   );
 
+  constructor() {
+    // Removed automatic restore in constructor to wait for restaurant context
+  }
+
   addToCart(menuItem: MenuItem, quantity: number = 1) {
     this.cartItems.update(items => {
       const existingItem = items.find(i => i.menuItem.id === menuItem.id);
@@ -79,7 +86,17 @@ export class CartService {
   }
 
   removeFromCart(menuItemId: number) {
+    const itemToRemove = this.cartItems().find(i => i.menuItem.id === menuItemId);
     this.cartItems.update(items => items.filter(i => i.menuItem.id !== menuItemId));
+
+    // If removing VIP membership, ensure local member status is reset to false
+    if (itemToRemove && (itemToRemove.menuItem.id === -999 || itemToRemove.menuItem.name === 'VIP Membership')) {
+      const currentInfo = this.customerInfo();
+      const currentId = this.customerId();
+      if (currentInfo && currentId) {
+        this.setCustomer(currentId, currentInfo.phoneNumber, false);
+      }
+    }
   }
 
   updateQuantity(menuItemId: number, quantity: number) {
@@ -102,6 +119,13 @@ export class CartService {
   }
 
   setContext(restaurantId: number, slug: string, restaurantName: string, tableId?: number | null, customerId?: number | null) {
+    // If switching restaurants, clear previous state
+    if (this.restaurantId() !== restaurantId) {
+      this.clearCart();
+      this.customerId.set(null);
+      this.customerInfo.set(null);
+    }
+
     this.restaurantId.set(restaurantId);
     this.restaurantSlug.set(slug);
     this.restaurantName.set(restaurantName);
@@ -111,20 +135,29 @@ export class CartService {
     if (customerId !== undefined) {
       this.customerId.set(customerId);
     }
+    
+    this.restoreCustomer();
   }
 
   setCustomer(id: number, phoneNumber: string, isMember: boolean) {
     this.customerId.set(id);
     this.customerInfo.set({ phoneNumber, isMember });
-    // Persist to localStorage
-    localStorage.setItem('customer_info', JSON.stringify({ id, phoneNumber, isMember }));
+    
+    const rid = this.restaurantId();
+    if (rid) {
+      localStorage.setItem(`customer_info_${rid}`, JSON.stringify({ id, phoneNumber, isMember }));
+    }
   }
 
   restoreCustomer() {
-    const stored = localStorage.getItem('customer_info');
+    const rid = this.restaurantId();
+    if (!rid) return;
+
+    const stored = localStorage.getItem(`customer_info_${rid}`);
     if (stored) {
       const { id, phoneNumber, isMember } = JSON.parse(stored);
-      this.setCustomer(id, phoneNumber, isMember);
+      this.customerId.set(id);
+      this.customerInfo.set({ phoneNumber, isMember });
     }
   }
 }
