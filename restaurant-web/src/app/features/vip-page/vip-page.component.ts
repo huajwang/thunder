@@ -3,15 +3,17 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { MenuItem } from '../../core/models/restaurant.types';
 import { RestaurantService } from '../../core/services/restaurant.service';
+import { MemberLoginDialogComponent } from '../customer/member-login-dialog.component';
 
 @Component({
   selector: 'app-vip-page',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatCardModule, RouterModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatCardModule, RouterModule, MatDialogModule],
   template: `
     <div class="vip-container">
       <div class="vip-header">
@@ -135,6 +137,7 @@ export class VipPageComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private restaurantService = inject(RestaurantService);
+  private dialog = inject(MatDialog);
 
   loading = signal<boolean>(true);
   error = signal<string | null>(null);
@@ -189,8 +192,34 @@ export class VipPageComponent implements OnInit {
   }
 
   addToCart() {
+    // Check if customer is logged in (using cart service context which holds customer info)
+    if (!this.cartService.customerInfo()) {
+      this.openMemberLogin();
+      return;
+    }
+    
     this.cartService.addToCart(this.vipItem);
     this.goBack();
+  }
+
+  openMemberLogin() {
+    const restaurantId = this.vipItem.restaurantId;
+    if (!restaurantId) return;
+
+    const dialogRef = this.dialog.open(MemberLoginDialogComponent, {
+      width: '400px'
+    });
+    
+    dialogRef.componentInstance.restaurantId = restaurantId;
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.cartService.setCustomer(result.customerId, result.phoneNumber, result.isMember);
+        // After successful login, add to cart
+        this.cartService.addToCart(this.vipItem);
+        this.goBack();
+      }
+    });
   }
 
   goBack() {

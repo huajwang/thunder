@@ -87,3 +87,13 @@ export interface RestaurantTable {
   tableNumber: number;
   qrCodeSlug?: string;
 }
+
+export interface RestaurantVipConfig {
+  id: number;
+  restaurantId: number;
+  isEnabled: boolean;
+  price: number;
+  discountRate: number;
+  description?: string;
+  imageUrl?: string;
+}

@@ -11,6 +11,7 @@ import com.yaojia.restaurant_server.dto.OrderItemDto
 import com.yaojia.restaurant_server.dto.OrderRequest
 import com.yaojia.restaurant_server.dto.OrderResponse
 import com.yaojia.restaurant_server.repo.CategoryRepository
+import com.yaojia.restaurant_server.repo.CustomerRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.OrderItemRepository
 import com.yaojia.restaurant_server.repo.OrderRepository
@@ -37,7 +38,8 @@ class OrderController(
     private val menuItemRepository: MenuItemRepository,
     private val categoryRepository: CategoryRepository,
     private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
-    private val orderEventService: OrderEventService
+    private val orderEventService: OrderEventService,
+    private val customerRepository: CustomerRepository
 ) {
 
     @GetMapping(value = ["/stream"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
@@ -182,12 +184,28 @@ class OrderController(
         }
 
         // Calculate discount and tax
-        val discount = if (request.customerId != null) {
-            // Simple check: if customerId is present, apply 10% discount.
-            // In a real app, we should verify membership status from DB.
-            subTotal.multiply(BigDecimal("0.10"))
-        } else {
-            BigDecimal.ZERO
+        var discount = BigDecimal.ZERO
+        var isMember = false
+        var hasVipItem = false
+
+        if (request.customerId != null) {
+            val customer = customerRepository.findById(request.customerId)
+            if (customer != null) {
+                isMember = customer.isMember
+            }
+        }
+
+        // Check if order contains VIP Membership item
+        // We check both the special ID -999 and the resolved menu item name
+        hasVipItem = request.items.any { it.menuItemId == -999L } || 
+                     menuItems.values.any { it.name == "VIP Membership" }
+
+        if (isMember || hasVipItem) {
+            val vipConfig = restaurantVipConfigRepository.findByRestaurantId(request.restaurantId)
+            if (vipConfig != null && vipConfig.isEnabled) {
+                val discountRate = BigDecimal.valueOf(vipConfig.discountRate)
+                discount = subTotal.multiply(discountRate)
+            }
         }
 
         val taxableAmount = subTotal.subtract(discount)
@@ -213,6 +231,14 @@ class OrderController(
         // 4. Save Order Items
         val itemsWithOrderId = orderItemsToSave.map { it.copy(orderId = savedOrder.id!!) }
         orderItemRepository.saveAll(itemsWithOrderId).toList()
+
+        // 5. Upgrade customer to VIP if applicable
+        if (hasVipItem && !isMember && request.customerId != null) {
+            val customer = customerRepository.findById(request.customerId)
+            if (customer != null && !customer.isMember) {
+                customerRepository.save(customer.copy(isMember = true))
+            }
+        }
 
         orderEventService.emit(
             OrderEvent(

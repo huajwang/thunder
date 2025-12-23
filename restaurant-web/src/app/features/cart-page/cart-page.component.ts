@@ -1,6 +1,6 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -35,11 +35,12 @@ import { OrderRequest } from '../../core/models/restaurant.types';
   templateUrl: './cart-page.component.html',
   styleUrl: './cart-page.component.css'
 })
-export class CartPageComponent {
+export class CartPageComponent implements OnInit {
   cartService = inject(CartService);
   private restaurantService = inject(RestaurantService);
   private addressService = inject(AddressService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   isSubmitting = false;
   error: string | null = null;
@@ -76,7 +77,41 @@ export class CartPageComponent {
       this.isSearchingAddress.set(false);
     });
   }
+ngOnInit() {
+    // Try to restore customer info if missing
+    if (!this.cartService.customerInfo()) {
+      this.cartService.restoreCustomer();
+    }
 
+    const slug = this.route.snapshot.paramMap.get('slug');
+    if (slug) {
+      this.loadRestaurantData(slug);
+    }
+  }
+
+  private loadRestaurantData(slug: string) {
+    this.restaurantService.getRestaurantBySlug(slug).subscribe({
+      next: (restaurant) => {
+        // Ensure CartService has the correct context
+        if (!this.cartService.restaurantId()) {
+          this.cartService.setContext(restaurant.id, restaurant.slug, restaurant.name);
+        }
+
+        // Fetch VIP config to ensure discount rate is set
+        this.restaurantService.getVipConfig(restaurant.id).subscribe({
+          next: (config) => {
+            this.cartService.vipDiscountRate.set(config.discountRate || 0);
+          },
+          error: () => {
+            this.cartService.vipDiscountRate.set(0);
+          }
+        });
+      },
+      error: (err) => console.error('Error loading restaurant:', err)
+    });
+  }
+
+  
   onAddressSearch(query: string) {
     this.addressQuery.set(query);
     this.triggerSearch();
@@ -211,9 +246,20 @@ export class CartPageComponent {
       }))
     };
 
+    // Check if we are buying a membership
+    const hasVipItem = this.cartService.items().some(item => item.menuItem.id === -999 || item.menuItem.name === 'VIP Membership');
+    const currentCustomer = this.cartService.customerInfo();
+    const currentCustomerId = this.cartService.customerId();
+
     this.restaurantService.placeOrder(orderRequest).subscribe({
       next: (response) => {
         this.isSubmitting = false;
+        
+        // If we bought a membership, upgrade the local customer state
+        if (hasVipItem && currentCustomer && currentCustomerId) {
+          this.cartService.setCustomer(currentCustomerId, currentCustomer.phoneNumber, true);
+        }
+
         this.cartService.clearCart();
         alert(`Order placed successfully! Order ID: ${response.id}`);
         this.goBack();

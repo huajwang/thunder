@@ -89,6 +89,7 @@ class DataSeeder(
                         restaurantId = existingRestaurant.id!!,
                         isEnabled = true,
                         price = BigDecimal("50.00"),
+                        discountRate = 0.10,
                         description = "Join our VIP club for exclusive benefits!",
                         imageUrl = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
                     )
@@ -129,6 +130,7 @@ class DataSeeder(
                 restaurantId = restaurant.id!!,
                 isEnabled = true,
                 price = BigDecimal("50.00"),
+                discountRate = 0.10,
                 description = "Join our VIP club for exclusive benefits!",
                 imageUrl = "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
             )
@@ -662,6 +664,7 @@ class DataSeeder(
                 restaurantId = restaurant.id!!,
                 isEnabled = true,
                 price = BigDecimal("100.00"),
+                discountRate = 0.10,
                 description = "Exclusive Omakase Access",
                 imageUrl = "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
             )

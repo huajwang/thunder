@@ -99,19 +99,48 @@ mat-list-item:hover {
   padding-top: 24px;
   border-top: 2px dashed #eee;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.total-label {
-  font-size: 18px;
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
   color: #666;
 }
 
-.total-amount {
-  font-size: 20px;
+.summary-row.discount {
+  color: #4caf50;
+}
+
+.summary-row.total {
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  font-size: 24px;
   font-weight: 700;
-  color: #2c3e50;
+  color: #333;
+}
+
+.vip-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #ff9800;
+  background: #fff3e0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 4px 0 12px;
+  width: fit-content;
+}
+
+.vip-info mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .order-options {

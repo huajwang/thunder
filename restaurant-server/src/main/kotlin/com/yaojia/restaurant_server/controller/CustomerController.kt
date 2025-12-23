@@ -66,7 +66,7 @@ class CustomerController(
                  Customer(
                      restaurantId = restaurantId,
                      phoneNumber = request.phoneNumber,
-                     isMember = false
+                     isMember = false // Default to false, upgrade via payment
                  )
              )
         }

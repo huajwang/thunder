@@ -28,8 +28,38 @@
     </mat-list>
 
     <div class="total-section">
-      <span class="total-label">Total</span>
-      <span class="total-amount">${{ cartService.totalAmount().toFixed(2) }}</span>
+      <div class="summary-row">
+        <span class="label">Subtotal</span>
+        <span class="value">${{ cartService.totalAmount().toFixed(2) }}</span>
+      </div>
+
+      @if (cartService.discountAmount() > 0) {
+        <div class="summary-row discount">
+          <span class="label">VIP Discount ({{ cartService.vipDiscountRate() * 100 }}%)</span>
+          <span class="value">-${{ cartService.discountAmount().toFixed(2) }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Subtotal (After Discount)</span>
+          <span class="value">${{ cartService.discountedSubTotal().toFixed(2) }}</span>
+        </div>
+      }
+
+      @if (cartService.customerInfo()?.isMember) {
+        <div class="vip-info">
+          <mat-icon>stars</mat-icon>
+          <span>VIP Member: {{ cartService.customerInfo()?.phoneNumber }}</span>
+        </div>
+      }
+
+      <div class="summary-row">
+        <span class="label">Tax ({{ cartService.taxRate * 100 }}%)</span>
+        <span class="value">${{ cartService.taxAmount().toFixed(2) }}</span>
+      </div>
+
+      <div class="summary-row total">
+        <span class="label">Total</span>
+        <span class="value">${{ cartService.finalTotal().toFixed(2) }}</span>
+      </div>
     </div>
 
     <div class="order-options">

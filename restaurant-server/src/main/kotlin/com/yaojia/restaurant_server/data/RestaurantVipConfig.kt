@@ -12,6 +12,7 @@ data class RestaurantVipConfig(
     val restaurantId: Long,
     val isEnabled: Boolean = false,
     val price: BigDecimal,
+    val discountRate: Double = 0.0,
     val description: String? = null,
     val imageUrl: String? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),

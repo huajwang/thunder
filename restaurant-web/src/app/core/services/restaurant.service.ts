@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, NgZone } from '@angular/core';
 import { map, Observable, switchMap } from 'rxjs';
-import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant, RestaurantTable } from '../models/restaurant.types';
+import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant, RestaurantTable, RestaurantVipConfig } from '../models/restaurant.types';
 
 @Injectable({
   providedIn: 'root'
@@ -86,8 +86,8 @@ export class RestaurantService {
     return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurantId}/menu-items/search?q=${query}`);
   }
 
-  getVipConfig(restaurantId: number): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/restaurants/${restaurantId}/vip-config`);
+  getVipConfig(restaurantId: number): Observable<RestaurantVipConfig> {
+    return this.http.get<RestaurantVipConfig>(`${this.API_URL}/restaurants/${restaurantId}/vip-config`);
   }
 
   // Helper to get the full menu structure

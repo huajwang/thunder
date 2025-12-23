@@ -54,10 +54,12 @@ export class RestaurantMenuComponent implements OnInit {
         this.restaurantService.getVipConfig(data.restaurant.id).subscribe({
           next: (config) => {
             this.isVipEnabled.set(config.isEnabled);
+            this.cartService.vipDiscountRate.set(config.discountRate || 0);
             this.loading.set(false);
           },
           error: () => {
             this.isVipEnabled.set(false);
+            this.cartService.vipDiscountRate.set(0);
             this.loading.set(false);
           }
         });

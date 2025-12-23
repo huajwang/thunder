@@ -83,6 +83,7 @@ CREATE TABLE IF NOT EXISTS restaurant_vip_configs (
     restaurant_id BIGINT NOT NULL UNIQUE,
     is_enabled BOOLEAN DEFAULT FALSE,
     price DECIMAL(10, 2) NOT NULL DEFAULT 50.00,
+    discount_rate DOUBLE DEFAULT 0.0,
     description TEXT,
     image_url VARCHAR(512),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
