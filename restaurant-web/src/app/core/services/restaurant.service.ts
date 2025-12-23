@@ -99,10 +99,12 @@ export class RestaurantService {
             return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurant.id}/menu-items`).pipe(
               map(items => {
                 // Map items to their categories
-                const categoriesWithItems = categories.map(cat => ({
-                  ...cat,
-                  items: items.filter(item => item.categoryId === cat.id)
-                }));
+                const categoriesWithItems = categories
+                  .filter(cat => cat.name !== 'Memberships') // Filter out Memberships category
+                  .map(cat => ({
+                    ...cat,
+                    items: items.filter(item => item.categoryId === cat.id)
+                  }));
                 return { restaurant, categories: categoriesWithItems };
               })
             );
