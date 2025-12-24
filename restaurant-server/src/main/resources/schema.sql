@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     price DECIMAL(10, 2) NOT NULL,
     image_url VARCHAR(512),
     is_available BOOLEAN DEFAULT TRUE,
+    spiciness_level INT DEFAULT 0 COMMENT '0: None, 1: Mild, 2: Medium, 3: Hot',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,

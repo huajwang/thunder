@@ -24,6 +24,7 @@ data class OrderItemDto(
     val menuItemId: Long,
     val menuItemName: String,
     val variantName: String? = null,
+    val spicinessLevel: Int = 0,
     val quantity: Int,
     val price: BigDecimal
 )

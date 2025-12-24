@@ -34,6 +34,10 @@ export class DishDetailComponent implements OnInit {
     this.loadData();
   }
 
+  getSpicinessArray(level: number): number[] {
+    return Array(level).fill(0);
+  }
+
   loadData() {
     this.loading.set(true);
     this.restaurantService.getMenuItem(parseInt(this.dishId, 10)).subscribe({

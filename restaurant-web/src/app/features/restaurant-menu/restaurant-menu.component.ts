@@ -38,6 +38,10 @@ export class RestaurantMenuComponent implements OnInit {
     this.loadData(this.slug);
   }
 
+  getSpicinessArray(level: number): number[] {
+    return Array(level).fill(0);
+  }
+
   loadData(slug: string) {
     this.loading.set(true);
     this.restaurantService.getFullMenu(slug).subscribe({

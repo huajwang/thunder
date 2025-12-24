@@ -19,7 +19,16 @@
       }
 
       <div class="dish-content">
-        <h1>{{ menuItem.name }}</h1>
+        <div class="header-row">
+          <h1>{{ menuItem.name }}</h1>
+          @if (menuItem.spicinessLevel) {
+            <div class="spiciness-badge" [title]="'Spiciness level ' + menuItem.spicinessLevel">
+              @for (_ of getSpicinessArray(menuItem.spicinessLevel); track $index) {
+                <mat-icon class="spicy-icon">whatshot</mat-icon>
+              }
+            </div>
+          }
+        </div>
         <p class="description">{{ menuItem.description }}</p>
 
         @if (menuItem.variants && menuItem.variants.length > 0) {

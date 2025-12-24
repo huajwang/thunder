@@ -35,6 +35,7 @@ export interface MenuItem {
   price: number;
   imageUrl?: string;
   isAvailable: boolean;
+  spicinessLevel?: number;
   variants?: MenuItemVariant[];
 }
 

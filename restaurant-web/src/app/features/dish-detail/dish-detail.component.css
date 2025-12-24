@@ -34,8 +34,29 @@
   padding: 0 8px;
 }
 
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.spiciness-badge {
+  display: flex;
+  gap: 2px;
+  margin-left: 8px;
+  cursor: help;
+}
+
+.spicy-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #f44336;
+}
+
 h1 {
-  margin: 0 0 8px 0;
+  margin: 0;
   font-size: 24px;
 }
 

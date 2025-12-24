@@ -238,7 +238,8 @@ class DataSeeder(
                 name = "Pepperoni Pizza",
                 description = "Tomato sauce, mozzarella, and spicy pepperoni slices",
                 price = BigDecimal("16.00"),
-                imageUrl = "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=60"
+                imageUrl = "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=500&q=60",
+                spicinessLevel = 1
             )
         )
         menuItemRepository.save(
@@ -300,7 +301,8 @@ class DataSeeder(
                 name = "Penne Arrabbiata",
                 description = "Penne pasta in a spicy tomato sauce with garlic and chili",
                 price = BigDecimal("13.50"),
-                imageUrl = "https://images.unsplash.com/photo-1608835291093-394b0c943a75?auto=format&fit=crop&w=500&q=60"
+                imageUrl = "https://images.unsplash.com/photo-1608835291093-394b0c943a75?auto=format&fit=crop&w=500&q=60",
+                spicinessLevel = 2
             )
         )
         menuItemRepository.save(

@@ -17,6 +17,7 @@ data class MenuItem(
     val price: BigDecimal,
     val imageUrl: String? = null,
     val isAvailable: Boolean = true,
+    val spicinessLevel: Int = 0,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
 ) {

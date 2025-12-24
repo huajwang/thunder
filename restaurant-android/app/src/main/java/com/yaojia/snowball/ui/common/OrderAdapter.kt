@@ -38,10 +38,16 @@ class OrderAdapter(
             binding.textOrderStatus.text = order.status
             
             val itemsSummary = order.items.joinToString("\n") { 
-                if (it.variantName != null) {
-                    "${it.quantity}x ${it.menuItemName} (${it.variantName})"
+                val peppers = "🌶️".repeat(it.spicinessLevel)
+                val name = if (it.variantName != null) {
+                    "${it.menuItemName} (${it.variantName})"
                 } else {
-                    "${it.quantity}x ${it.menuItemName}"
+                    it.menuItemName
+                }
+                if (peppers.isNotEmpty()) {
+                    "${it.quantity}x $name $peppers"
+                } else {
+                    "${it.quantity}x $name"
                 }
             }
             binding.textOrderItems.text = itemsSummary

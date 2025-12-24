@@ -56,9 +56,18 @@
                     <span class="item-price">${{ item.price.toFixed(2) }}</span>
                   }
                 </div>
-                <button mat-mini-fab color="primary" (click)="addToOrder(item)">
-                  <mat-icon>add</mat-icon>
-                </button>
+                <div class="item-actions">
+                  @if (item.spicinessLevel) {
+                    <div class="spiciness-badge" [title]="'Spiciness level ' + item.spicinessLevel">
+                      @for (_ of getSpicinessArray(item.spicinessLevel); track $index) {
+                        <mat-icon class="spicy-icon">whatshot</mat-icon>
+                      }
+                    </div>
+                  }
+                  <button mat-mini-fab color="primary" (click)="addToOrder(item)">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
               </div>
             </div>
           }

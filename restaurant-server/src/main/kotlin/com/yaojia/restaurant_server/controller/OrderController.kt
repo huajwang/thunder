@@ -109,6 +109,7 @@ class OrderController(
                         menuItemId = item.menuItemId,
                         menuItemName = menuItem?.name ?: "Unknown",
                         variantName = variant?.name,
+                        spicinessLevel = menuItem?.spicinessLevel ?: 0,
                         quantity = item.quantity,
                         price = item.priceAtOrder
                     )
