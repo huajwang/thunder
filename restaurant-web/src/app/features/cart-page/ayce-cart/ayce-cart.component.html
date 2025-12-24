@@ -11,6 +11,9 @@
     <mat-list>
       @for (item of cartService.items(); track item.menuItem.id) {
         <mat-list-item>
+          @if (item.menuItem.imageUrl) {
+            <img matListItemAvatar [src]="item.menuItem.imageUrl" [alt]="item.menuItem.name">
+          }
           <span matListItemTitle>{{ item.menuItem.name }} x {{ item.quantity }}</span>
           
           <div class="qty-controls" matListItemMeta>
