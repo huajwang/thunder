@@ -9,6 +9,7 @@ export interface Restaurant {
   latitude?: number;
   longitude?: number;
   businessHours?: string;
+  type?: 'STANDARD' | 'AYCE';
 }
 
 export interface Category {

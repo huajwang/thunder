@@ -40,6 +40,7 @@ class DataSeeder(
             seedBurgerJoint()
             seedSushiWorld()
             seedTacoFiesta()
+            seedGoldenCorral()
             seedUsers()
         }
     }
@@ -49,6 +50,7 @@ class DataSeeder(
         seedUser("burger-joint", "admin_burger", "password")
         seedUser("sushi-world", "admin_sushi", "password")
         seedUser("taco-fiesta", "admin_taco", "password")
+        seedUser("golden-corral", "admin_golden", "password")
     }
 
     private suspend fun seedUser(slug: String, username: String, password: String) {
@@ -851,5 +853,103 @@ class DataSeeder(
         )
 
         logger.info("Seeding Taco Fiesta completed!")
+    }
+
+    private suspend fun seedGoldenCorral() {
+        val slug = "golden-corral"
+        val existingRestaurant = restaurantRepository.findBySlug(slug).firstOrNull()
+        
+        if (existingRestaurant != null) {
+            logger.info("Data already seeded for $slug")
+            return
+        }
+
+        logger.info("Seeding data for $slug...")
+
+        // 1. Create Restaurant (AYCE)
+        val restaurant = restaurantRepository.save(
+            Restaurant(
+                name = "Golden Corral",
+                slug = slug,
+                description = "All You Can Eat Buffet",
+                imageUrl = "https://images.unsplash.com/photo-1544148103-0773bf10d330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
+                address = "500 Buffet Way, Orlando, FL",
+                phoneNumber = "555-0500",
+                latitude = 28.5383,
+                longitude = -81.3792,
+                businessHours = "Mon-Sun: 8:00 AM - 9:00 PM",
+                type = "AYCE"
+            )
+        )
+
+        // 2. Create Tables
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 1))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 2))
+        restaurantTableRepository.save(RestaurantTable(restaurantId = restaurant.id!!, tableNumber = 3))
+
+        // 2.5 Create VIP Config (Disabled)
+        restaurantVipConfigRepository.save(
+            RestaurantVipConfig(
+                restaurantId = restaurant.id!!,
+                isEnabled = false,
+                price = BigDecimal("0.00")
+            )
+        )
+
+        // 3. Create Categories
+        val buffet = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Buffet Items", displayOrder = 1)
+        )
+        val drinks = categoryRepository.save(
+            Category(restaurantId = restaurant.id!!, name = "Drinks", displayOrder = 2)
+        )
+
+        // 4. Create Menu Items (Food is $0.00)
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = buffet.id,
+                name = "Roast Beef",
+                description = "Slow roasted beef",
+                price = BigDecimal("10.00"),
+                imageUrl = "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = buffet.id,
+                name = "Fried Chicken",
+                description = "Crispy fried chicken",
+                price = BigDecimal("12.00"),
+                imageUrl = "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = buffet.id,
+                name = "Mashed Potatoes",
+                description = "Creamy mashed potatoes with gravy",
+                price = BigDecimal("9.99"),
+                imageUrl = "https://images.unsplash.com/photo-1618449840665-9ed506d73a34?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+        
+        // Drinks might still be charged? Let's assume included for simplicity or charged separately.
+        // Let's make them charged to show hybrid model capability, or $0 if fully inclusive.
+        // User said "charged by head counts", usually drinks are extra or included. Let's make them $0 for now to be safe.
+        menuItemRepository.save(
+            MenuItem(
+                restaurantId = restaurant.id!!,
+                categoryId = drinks.id,
+                name = "Soda",
+                description = "Unlimited refills",
+                price = BigDecimal("2.95"),
+                imageUrl = "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=60"
+            )
+        )
+
+        logger.info("Seeding Golden Corral completed!")
     }
 }

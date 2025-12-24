@@ -221,14 +221,22 @@
   object-fit: cover;
 }
 
-.item-details {
+.menu-item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 15px;
-  margin-bottom: 0;
   flex-grow: 1;
 }
 
+.item-details {
+  margin-bottom: 0;
+  flex-grow: 1;
+  padding-right: 12px;
+}
+
 .menu-item-card button {
-  margin: 0 15px 15px auto;
+  flex-shrink: 0;
 }
 
 .item-details h3 {

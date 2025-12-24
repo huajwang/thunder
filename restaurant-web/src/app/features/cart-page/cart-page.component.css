@@ -229,3 +229,98 @@ mat-radio-group {
   font-size: 16px;
   border-radius: 24px;
 }
+
+.ayce-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.ayce-section h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.ayce-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ayce-row:last-child {
+  margin-bottom: 0;
+}
+
+.ayce-row span {
+  font-size: 16px;
+}
+
+/* Placed Orders Styling */
+.placed-orders-container {
+  margin-top: 40px;
+  border-top: 2px dashed #eee;
+  padding-top: 24px;
+}
+
+.placed-orders-header h3 {
+  color: #555;
+  font-size: 18px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.batches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.batch-card {
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.batch-card.even-batch {
+  background-color: #e3f2fd; /* Light Blue */
+  border-color: #bbdefb;
+}
+
+.batch-card.odd-batch {
+  background-color: #f3e5f5; /* Light Purple */
+  border-color: #e1bee7;
+}
+
+
+
+.batch-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.batch-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.item-qty {
+  background: rgba(255,255,255,0.6);
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #555;
+}
