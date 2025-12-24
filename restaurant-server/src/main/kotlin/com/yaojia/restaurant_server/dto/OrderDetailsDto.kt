@@ -23,6 +23,7 @@ data class OrderDetailsDto(
 data class OrderItemDto(
     val menuItemId: Long,
     val menuItemName: String,
+    val variantName: String? = null,
     val quantity: Int,
     val price: BigDecimal
 )

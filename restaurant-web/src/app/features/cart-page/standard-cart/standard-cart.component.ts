@@ -160,12 +160,12 @@ export class StandardCartComponent implements OnInit {
     this.addressSuggestions.set([]);
   }
 
-  increaseQuantity(itemId: number, currentQty: number) {
-    this.cartService.updateQuantity(itemId, currentQty + 1);
+  increaseQuantity(itemId: number, currentQty: number, variantId?: number) {
+    this.cartService.updateQuantity(itemId, currentQty + 1, variantId);
   }
 
-  decreaseQuantity(itemId: number, currentQty: number) {
-    this.cartService.updateQuantity(itemId, currentQty - 1);
+  decreaseQuantity(itemId: number, currentQty: number, variantId?: number) {
+    this.cartService.updateQuantity(itemId, currentQty - 1, variantId);
   }
 
   goBack() {
@@ -213,7 +213,8 @@ export class StandardCartComponent implements OnInit {
       phoneNumber: this.orderType() === 'delivery' ? this.phoneNumber() : undefined,
       items: this.cartService.items().map(item => ({
         menuItemId: item.menuItem.id,
-        quantity: item.quantity
+        quantity: item.quantity,
+        variantId: item.variant?.id
       }))
     };
 

@@ -37,7 +37,13 @@ class OrderAdapter(
             
             binding.textOrderStatus.text = order.status
             
-            val itemsSummary = order.items.joinToString("\n") { "${it.quantity}x ${it.menuItemName}" }
+            val itemsSummary = order.items.joinToString("\n") { 
+                if (it.variantName != null) {
+                    "${it.quantity}x ${it.menuItemName} (${it.variantName})"
+                } else {
+                    "${it.quantity}x ${it.menuItemName}"
+                }
+            }
             binding.textOrderItems.text = itemsSummary
 
             binding.buttonAction.text = when (order.status) {

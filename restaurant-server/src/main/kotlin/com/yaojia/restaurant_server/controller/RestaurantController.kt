@@ -6,10 +6,12 @@ import com.yaojia.restaurant_server.data.Restaurant
 import com.yaojia.restaurant_server.data.RestaurantVipConfig
 import com.yaojia.restaurant_server.repo.CategoryRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
+import com.yaojia.restaurant_server.repo.MenuItemVariantRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
 import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -20,6 +22,7 @@ class RestaurantController(
     private val restaurantRepository: RestaurantRepository,
     private val categoryRepository: CategoryRepository,
     private val menuItemRepository: MenuItemRepository,
+    private val menuItemVariantRepository: MenuItemVariantRepository,
     private val restaurantVipConfigRepository: RestaurantVipConfigRepository
 ) {
 
@@ -46,13 +49,21 @@ class RestaurantController(
     }
 
     @GetMapping("/{id}/menu-items")
-    fun getMenuItems(@PathVariable id: Long): Flow<MenuItem> {
-        return menuItemRepository.findByRestaurantId(id)
+    suspend fun getMenuItems(@PathVariable id: Long): List<MenuItem> {
+        val items = menuItemRepository.findByRestaurantId(id).toList()
+        return items.map { item ->
+            val variants = menuItemVariantRepository.findByMenuItemId(item.id!!).toList()
+            item.apply { this.variants = variants }
+        }
     }
 
     @GetMapping("/{id}/menu-items/search")
-    fun searchMenuItems(@PathVariable id: Long, @RequestParam q: String): Flow<MenuItem> {
-        return menuItemRepository.searchByRestaurantIdAndQuery(id, q)
+    suspend fun searchMenuItems(@PathVariable id: Long, @RequestParam q: String): List<MenuItem> {
+        val items = menuItemRepository.searchByRestaurantIdAndQuery(id, q).toList()
+        return items.map { item ->
+            val variants = menuItemVariantRepository.findByMenuItemId(item.id!!).toList()
+            item.apply { this.variants = variants }
+        }
     }
 
     @GetMapping("/{id}/vip-config")

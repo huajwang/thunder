@@ -7,17 +7,21 @@
     </div>
   } @else {
     <mat-list>
-      @for (item of cartService.items(); track item.menuItem.id) {
+      @for (item of cartService.items(); track item.menuItem.id + '-' + (item.variant?.id || '')) {
         <mat-list-item>
-          <span matListItemTitle>{{ item.menuItem.name }} x {{ item.quantity }}</span>
-          <span matListItemLine>${{ item.menuItem.price.toFixed(2) }}</span>
+          <span matListItemTitle>
+            {{ item.menuItem.name }} 
+            @if (item.variant) { ({{ item.variant.name }}) }
+            x {{ item.quantity }}
+          </span>
+          <span matListItemLine>${{ (item.variant ? item.variant.price : item.menuItem.price).toFixed(2) }}</span>
           
           <div class="qty-controls" matListItemMeta>
-            <button mat-icon-button (click)="decreaseQuantity(item.menuItem.id, item.quantity)">
+            <button mat-icon-button (click)="decreaseQuantity(item.menuItem.id, item.quantity, item.variant?.id)">
               <mat-icon>remove</mat-icon>
             </button>
             <span class="qty">{{ item.quantity }}</span>
-            <button mat-icon-button (click)="increaseQuantity(item.menuItem.id, item.quantity)">
+            <button mat-icon-button (click)="increaseQuantity(item.menuItem.id, item.quantity, item.variant?.id)">
               <mat-icon>add</mat-icon>
             </button>
           </div>

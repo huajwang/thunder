@@ -20,6 +20,12 @@ export interface Category {
   items?: MenuItem[]; // Optional, might be populated by a join or separate call
 }
 
+export interface MenuItemVariant {
+  id: number;
+  name: string;
+  price: number;
+}
+
 export interface MenuItem {
   id: number;
   restaurantId: number;
@@ -29,11 +35,13 @@ export interface MenuItem {
   price: number;
   imageUrl?: string;
   isAvailable: boolean;
+  variants?: MenuItemVariant[];
 }
 
 export interface OrderItemRequest {
   menuItemId: number;
   quantity: number;
+  variantId?: number;
 }
 
 export interface OrderRequest {

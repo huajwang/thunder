@@ -1,0 +1,84 @@
+<div class="cart-container">
+  @if (cartService.items().length === 0 && cartService._placedOrders().length === 0) {
+    <div class="empty-cart">
+      <mat-icon>shopping_cart</mat-icon>
+      <p>Your cart is empty</p>
+      <button mat-raised-button color="primary" (click)="goBack()">Back to Menu</button>
+    </div>
+  }
+
+  @if (cartService.items().length > 0) {
+    <mat-list>
+      @for (item of cartService.items(); track item.menuItem.id) {
+        <mat-list-item>
+          <span matListItemTitle>{{ item.menuItem.name }} x {{ item.quantity }}</span>
+          
+          <div class="qty-controls" matListItemMeta>
+            <button mat-icon-button (click)="decreaseQuantity(item.menuItem.id, item.quantity)">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="qty">{{ item.quantity }}</span>
+            <button mat-icon-button (click)="increaseQuantity(item.menuItem.id, item.quantity)">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </mat-list-item>
+      }
+    </mat-list>
+
+    @if (cartService.customerInfo()?.isMember) {
+      <div class="vip-info">
+        <mat-icon>stars</mat-icon>
+        <span>VIP Member: {{ cartService.customerInfo()?.phoneNumber }}</span>
+      </div>
+    }
+
+    @if (error) {
+      <p class="error-msg">{{ error }}</p>
+    }
+
+    <div class="actions">
+      <button mat-button (click)="goBack()" [disabled]="isSubmitting">Continue Ordering</button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="placeOrder()" 
+        [disabled]="cartService.items().length === 0 || isSubmitting">
+        @if (isSubmitting) {
+          Placing Order...
+        } @else {
+          Place Order
+        }
+      </button>
+    </div>
+  }
+
+  @if (cartService._placedOrders().length > 0) {
+    <div class="placed-orders-container">
+      <div class="placed-orders-header">
+        <h3>Placed Orders</h3>
+      </div>
+      
+      <div class="batches-list">
+        @for (order of cartService._placedOrders(); track order.date; let i = $index) {
+          <div class="batch-card" [class.even-batch]="i % 2 === 0" [class.odd-batch]="i % 2 !== 0">
+            <div class="batch-items">
+              @for (item of order.items; track item.menuItem.id) {
+                <div class="batch-item">
+                  <span class="item-name">{{ item.menuItem.name }}</span>
+                  <span class="item-qty">x{{ item.quantity }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (cartService.items().length === 0) {
+      <div class="actions" style="justify-content: center; margin-top: 24px;">
+        <button mat-raised-button color="primary" (click)="goBack()">Continue Ordering</button>
+      </div>
+    }
+  }
+</div>

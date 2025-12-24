@@ -1,10 +1,17 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { MenuItem } from '../models/restaurant.types';
+import { MenuItem, MenuItemVariant } from '../models/restaurant.types';
 import { TAX_RATE } from '../constants';
 
 export interface CartItem {
   menuItem: MenuItem;
+  variant?: MenuItemVariant;
   quantity: number;
+}
+
+export interface PlacedOrder {
+  items: CartItem[];
+  total: number;
+  date: Date;
 }
 
 @Injectable({
@@ -13,6 +20,7 @@ export interface CartItem {
 export class CartService {
   // Signals
   private cartItems = signal<CartItem[]>([]);
+  _placedOrders = signal<PlacedOrder[]>([]);
   restaurantId = signal<number | null>(null);
   restaurantSlug = signal<string | null>(null);
   restaurantName = signal<string | null>(null);
@@ -20,6 +28,9 @@ export class CartService {
   customerId = signal<number | null>(null);
   customerInfo = signal<{phoneNumber: string, isMember: boolean} | null>(null);
   vipDiscountRate = signal<number>(0);
+  
+  // AYCE Support
+  restaurantType = signal<'STANDARD' | 'AYCE'>('STANDARD');
 
   // Computed values
   readonly items = this.cartItems.asReadonly();
@@ -28,9 +39,13 @@ export class CartService {
     this.cartItems().reduce((acc, item) => acc + item.quantity, 0)
   );
 
-  readonly totalAmount = computed(() => 
-    this.cartItems().reduce((acc, item) => acc + (item.menuItem.price * item.quantity), 0)
-  );
+  readonly totalAmount = computed(() => {
+    // Standard items total
+    return this.cartItems().reduce((acc, item) => {
+      const price = item.variant ? item.variant.price : item.menuItem.price;
+      return acc + (price * item.quantity);
+    }, 0);
+  });
 
   readonly hasVipItem = computed(() => 
     this.cartItems().some(item => item.menuItem.id === -999 || item.menuItem.name === 'VIP Membership')
@@ -47,7 +62,8 @@ export class CartService {
         if (item.menuItem.id === -999 || item.menuItem.name === 'VIP Membership') {
           return acc;
         }
-        return acc + (item.menuItem.price * item.quantity);
+        const price = item.variant ? item.variant.price : item.menuItem.price;
+        return acc + (price * item.quantity);
       }, 0);
       
       return discountableAmount * this.vipDiscountRate();
@@ -71,23 +87,33 @@ export class CartService {
     // Removed automatic restore in constructor to wait for restaurant context
   }
 
-  addToCart(menuItem: MenuItem, quantity: number = 1) {
+  addToCart(menuItem: MenuItem, variant?: MenuItemVariant, quantity: number = 1) {
     this.cartItems.update(items => {
-      const existingItem = items.find(i => i.menuItem.id === menuItem.id);
+      const existingItem = items.find(i => 
+        i.menuItem.id === menuItem.id && 
+        ((!i.variant && !variant) || (i.variant?.id === variant?.id))
+      );
+      
       if (existingItem) {
         return items.map(i => 
-          i.menuItem.id === menuItem.id 
+          (i.menuItem.id === menuItem.id && ((!i.variant && !variant) || (i.variant?.id === variant?.id)))
             ? { ...i, quantity: i.quantity + quantity }
             : i
         );
       }
-      return [...items, { menuItem, quantity }];
+      return [...items, { menuItem, variant, quantity }];
     });
   }
 
-  removeFromCart(menuItemId: number) {
-    const itemToRemove = this.cartItems().find(i => i.menuItem.id === menuItemId);
-    this.cartItems.update(items => items.filter(i => i.menuItem.id !== menuItemId));
+  removeFromCart(menuItemId: number, variantId?: number) {
+    const itemToRemove = this.cartItems().find(i => 
+      i.menuItem.id === menuItemId && 
+      ((!i.variant && !variantId) || (i.variant?.id === variantId))
+    );
+    
+    this.cartItems.update(items => items.filter(i => 
+      !(i.menuItem.id === menuItemId && ((!i.variant && !variantId) || (i.variant?.id === variantId)))
+    ));
 
     // If removing VIP membership, ensure local member status is reset to false
     if (itemToRemove && (itemToRemove.menuItem.id === -999 || itemToRemove.menuItem.name === 'VIP Membership')) {
@@ -99,15 +125,15 @@ export class CartService {
     }
   }
 
-  updateQuantity(menuItemId: number, quantity: number) {
+  updateQuantity(menuItemId: number, quantity: number, variantId?: number) {
     if (quantity <= 0) {
-      this.removeFromCart(menuItemId);
+      this.removeFromCart(menuItemId, variantId);
       return;
     }
     
     this.cartItems.update(items => 
       items.map(i => 
-        i.menuItem.id === menuItemId 
+        (i.menuItem.id === menuItemId && ((!i.variant && !variantId) || (i.variant?.id === variantId)))
           ? { ...i, quantity }
           : i
       )
@@ -118,12 +144,18 @@ export class CartService {
     this.cartItems.set([]);
   }
 
+  addPlacedOrder(order: PlacedOrder) {
+    this._placedOrders.update(orders => [order, ...orders]);
+  }
+
   setContext(restaurantId: number, slug: string, restaurantName: string, tableId?: number | null, customerId?: number | null) {
     // If switching restaurants, clear previous state
     if (this.restaurantId() !== restaurantId) {
       this.clearCart();
+      this._placedOrders.set([]);
       this.customerId.set(null);
       this.customerInfo.set(null);
+      this.restaurantType.set('STANDARD');
     }
 
     this.restaurantId.set(restaurantId);
@@ -137,6 +169,10 @@ export class CartService {
     }
     
     this.restoreCustomer();
+  }
+
+  setAyceConfig(type: 'STANDARD' | 'AYCE') {
+    this.restaurantType.set(type);
   }
 
   setCustomer(id: number, phoneNumber: string, isMember: boolean) {

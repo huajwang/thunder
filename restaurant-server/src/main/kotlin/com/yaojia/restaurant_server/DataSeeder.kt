@@ -2,12 +2,14 @@ package com.yaojia.restaurant_server
 
 import com.yaojia.restaurant_server.data.Category
 import com.yaojia.restaurant_server.data.MenuItem
+import com.yaojia.restaurant_server.data.MenuItemVariant
 import com.yaojia.restaurant_server.data.Restaurant
 import com.yaojia.restaurant_server.data.RestaurantTable
 import com.yaojia.restaurant_server.data.RestaurantVipConfig
 import com.yaojia.restaurant_server.data.User
 import com.yaojia.restaurant_server.repo.CategoryRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
+import com.yaojia.restaurant_server.repo.MenuItemVariantRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
 import com.yaojia.restaurant_server.repo.RestaurantTableRepository
 import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
@@ -27,6 +29,7 @@ class DataSeeder(
     private val restaurantRepository: RestaurantRepository,
     private val categoryRepository: CategoryRepository,
     private val menuItemRepository: MenuItemRepository,
+    private val menuItemVariantRepository: MenuItemVariantRepository,
     private val restaurantTableRepository: RestaurantTableRepository,
     private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
     private val userRepository: UserRepository
@@ -214,7 +217,7 @@ class DataSeeder(
         )
 
         // Pizzas
-        menuItemRepository.save(
+        val margherita = menuItemRepository.save(
             MenuItem(
                 restaurantId = restaurant.id!!,
                 categoryId = pizzas.id,
@@ -224,6 +227,10 @@ class DataSeeder(
                 imageUrl = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=500&q=60"
             )
         )
+        menuItemVariantRepository.save(MenuItemVariant(menuItemId = margherita.id!!, name = "Small 10\"", price = BigDecimal("14.00")))
+        menuItemVariantRepository.save(MenuItemVariant(menuItemId = margherita.id!!, name = "Medium 12\"", price = BigDecimal("18.00")))
+        menuItemVariantRepository.save(MenuItemVariant(menuItemId = margherita.id!!, name = "Large 14\"", price = BigDecimal("22.00")))
+
         menuItemRepository.save(
             MenuItem(
                 restaurantId = restaurant.id!!,

@@ -82,6 +82,10 @@ export class RestaurantService {
     return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurantId}/menu-items`);
   }
 
+  getMenuItem(id: number): Observable<MenuItem> {
+    return this.http.get<MenuItem>(`${this.API_URL}/menu-items/${id}`);
+  }
+
   searchMenuItems(restaurantId: number, query: string): Observable<MenuItem[]> {
     return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurantId}/menu-items/search?q=${query}`);
   }

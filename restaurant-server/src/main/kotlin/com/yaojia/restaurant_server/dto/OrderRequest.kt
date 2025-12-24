@@ -11,7 +11,8 @@ data class OrderRequest(
 
 data class OrderItemRequest(
     val menuItemId: Long,
-    val quantity: Int
+    val quantity: Int,
+    val variantId: Long? = null
 )
 
 data class OrderResponse(

@@ -2,6 +2,7 @@
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS restaurant_tables;
+DROP TABLE IF EXISTS menu_item_variants;
 DROP TABLE IF EXISTS menu_items;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;
@@ -51,6 +52,17 @@ CREATE TABLE IF NOT EXISTS menu_items (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+);
+
+-- Menu Item Variants Table
+CREATE TABLE IF NOT EXISTS menu_item_variants (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    menu_item_id BIGINT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
 );
 
 -- Restaurant Tables
@@ -119,10 +131,12 @@ CREATE TABLE IF NOT EXISTS order_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT NOT NULL,
     menu_item_id BIGINT NOT NULL,
+    variant_id BIGINT,
     quantity INT NOT NULL,
     price_at_order DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id),
+    FOREIGN KEY (variant_id) REFERENCES menu_item_variants(id)
 );
 
 -- Users Table

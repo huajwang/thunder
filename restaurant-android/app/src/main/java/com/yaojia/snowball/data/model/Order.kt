@@ -19,6 +19,7 @@ data class Order(
 data class OrderItem(
     val menuItemId: Long,
     val menuItemName: String,
+    val variantName: String?,
     val quantity: Int,
     val price: Double
 )

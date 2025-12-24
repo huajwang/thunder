@@ -13,6 +13,7 @@ import com.yaojia.restaurant_server.dto.OrderResponse
 import com.yaojia.restaurant_server.repo.CategoryRepository
 import com.yaojia.restaurant_server.repo.CustomerRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
+import com.yaojia.restaurant_server.repo.MenuItemVariantRepository
 import com.yaojia.restaurant_server.repo.OrderItemRepository
 import com.yaojia.restaurant_server.repo.OrderRepository
 import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
@@ -36,6 +37,7 @@ class OrderController(
     private val orderRepository: OrderRepository,
     private val orderItemRepository: OrderItemRepository,
     private val menuItemRepository: MenuItemRepository,
+    private val menuItemVariantRepository: MenuItemVariantRepository,
     private val categoryRepository: CategoryRepository,
     private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
     private val orderEventService: OrderEventService,
@@ -81,6 +83,9 @@ class OrderController(
         val menuItemIds = orderItems.map { it.menuItemId }.distinct()
         val menuItems = menuItemRepository.findAllById(menuItemIds).toList().associateBy { it.id }
 
+        val variantIds = orderItems.mapNotNull { it.variantId }.distinct()
+        val variants = menuItemVariantRepository.findAllById(variantIds).toList().associateBy { it.id }
+
         return orders.map { order ->
             val itemsForOrder = orderItems.filter { it.orderId == order.id }
             OrderDetailsDto(
@@ -99,9 +104,11 @@ class OrderController(
                 updatedAt = order.updatedAt,
                 items = itemsForOrder.map { item ->
                     val menuItem = menuItems[item.menuItemId]
+                    val variant = item.variantId?.let { variants[it] }
                     OrderItemDto(
                         menuItemId = item.menuItemId,
                         menuItemName = menuItem?.name ?: "Unknown",
+                        variantName = variant?.name,
                         quantity = item.quantity,
                         price = item.priceAtOrder
                     )
@@ -171,12 +178,23 @@ class OrderController(
                 val menuItem = menuItems[itemRequest.menuItemId]
                     ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Menu item not found: ${itemRequest.menuItemId}")
                 
-                val price = menuItem.price
+                var price = menuItem.price
+                if (itemRequest.variantId != null) {
+                    val variant = menuItemVariantRepository.findById(itemRequest.variantId)
+                        ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Variant not found: ${itemRequest.variantId}")
+                    
+                    if (variant.menuItemId != menuItem.id) {
+                        throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Variant does not belong to menu item")
+                    }
+                    price = variant.price
+                }
+
                 subTotal = subTotal.add(price.multiply(BigDecimal(itemRequest.quantity)))
                 
                 OrderItem(
                     orderId = 0, // Will be updated after order save
                     menuItemId = menuItem.id!!,
+                    variantId = itemRequest.variantId,
                     quantity = itemRequest.quantity,
                     priceAtOrder = price
                 )

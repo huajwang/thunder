@@ -42,6 +42,10 @@ export const routes: Routes = [
     path: ':slug/location', 
     loadComponent: () => import('./features/location-page/location-page.component').then(m => m.LocationPageComponent)
   },
+  { 
+    path: ':slug/dish/:dishId', 
+    loadComponent: () => import('./features/dish-detail/dish-detail.component').then(m => m.DishDetailComponent)
+  },
   { path: ':slug', component: RestaurantMenuComponent },
   { path: ':slug/table/:tableNumber', component: RestaurantMenuComponent }
 ];

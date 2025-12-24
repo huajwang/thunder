@@ -32,6 +32,7 @@ class SecurityConfig {
                     .pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                     .pathMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                     .pathMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll()
+                    .pathMatchers(HttpMethod.GET, "/api/menu-items/**").permitAll()
                     .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
                     .pathMatchers("/api/customers/login/**").permitAll()
                     .pathMatchers("/api/orders/stream").authenticated()

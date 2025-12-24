@@ -34,6 +34,7 @@ data class OrderItem(
     val id: Long? = null,
     val orderId: Long,
     val menuItemId: Long,
+    val variantId: Long? = null,
     val quantity: Int,
     val priceAtOrder: BigDecimal
 )

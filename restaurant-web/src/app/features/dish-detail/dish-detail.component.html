@@ -1,0 +1,50 @@
+<div class="container">
+  @if (loading()) {
+    <div class="loading-spinner">
+      Loading...
+    </div>
+  } @else if (error()) {
+    <div class="error-message">
+      {{ error() }}
+      <button mat-button (click)="goBack()">Go Back</button>
+    </div>
+  } @else if (item(); as menuItem) {
+    <div class="dish-detail">
+      <button mat-icon-button class="back-button" (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+
+      @if (menuItem.imageUrl) {
+        <img [src]="menuItem.imageUrl" [alt]="menuItem.name" class="dish-image">
+      }
+
+      <div class="dish-content">
+        <h1>{{ menuItem.name }}</h1>
+        <p class="description">{{ menuItem.description }}</p>
+
+        @if (menuItem.variants && menuItem.variants.length > 0) {
+          <div class="variants-section">
+            <h3>Choose Size</h3>
+            <mat-radio-group [ngModel]="selectedVariant()" (ngModelChange)="selectedVariant.set($event)">
+              @for (variant of menuItem.variants; track variant.id) {
+                <mat-radio-button [value]="variant" class="variant-option">
+                  {{ variant.name }} - ${{ variant.price.toFixed(2) }}
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+          </div>
+        } @else {
+          <div class="price-section">
+            <span class="price">${{ menuItem.price.toFixed(2) }}</span>
+          </div>
+        }
+
+        <div class="actions">
+          <button mat-raised-button color="primary" class="add-button" (click)="addToCart()">
+            Add to Cart - ${{ (selectedVariant() ? selectedVariant()!.price : menuItem.price).toFixed(2) }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { RestaurantService } from '../../core/services/restaurant.service';
 import { CartService } from '../../core/services/cart.service';
 import { Category, MenuItem, Restaurant } from '../../core/models/restaurant.types';
@@ -20,6 +20,7 @@ export class RestaurantMenuComponent implements OnInit {
   @Input() tableNumber?: string; // From Router (optional)
 
   private restaurantService = inject(RestaurantService);
+  private router = inject(Router);
   cartService = inject(CartService);
 
   restaurant = signal<Restaurant | null>(null);
@@ -50,6 +51,13 @@ export class RestaurantMenuComponent implements OnInit {
         // Set context for CartService
         this.cartService.setContext(data.restaurant.id, data.restaurant.slug, data.restaurant.name, this.currentTable());
 
+        // Set AYCE config
+        if (data.restaurant.type === 'AYCE') {
+          this.cartService.setAyceConfig('AYCE');
+        } else {
+          this.cartService.setAyceConfig('STANDARD');
+        }
+
         // Check VIP status
         this.restaurantService.getVipConfig(data.restaurant.id).subscribe({
           next: (config) => {
@@ -73,7 +81,13 @@ export class RestaurantMenuComponent implements OnInit {
   }
 
   addToOrder(item: MenuItem) {
-    this.cartService.addToCart(item);
+    if (item.variants && item.variants.length > 0) {
+      this.router.navigate(['/', this.slug, 'dish', item.id], { 
+        queryParams: this.currentTable() ? { table: this.currentTable() } : {} 
+      });
+    } else {
+      this.cartService.addToCart(item);
+    }
   }
 
   selectCategory(category: Category) {
