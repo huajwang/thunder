@@ -143,25 +143,4 @@
       </button>
     </div>
   }
-
-  @if (cartService._placedOrders().length > 0) {
-    <div class="placed-orders">
-      <h3>Recent Orders</h3>
-      @for (order of cartService._placedOrders(); track order.date) {
-        <div class="placed-order-card">
-          <div class="order-header">
-            <span>Placed at {{ order.date | date:'shortTime' }}</span>
-            <span>${{ order.total.toFixed(2) }}</span>
-          </div>
-          <mat-list>
-            @for (item of order.items; track item.menuItem.id) {
-              <mat-list-item>
-                <span matListItemTitle>{{ item.menuItem.name }} x {{ item.quantity }}</span>
-              </mat-list-item>
-            }
-          </mat-list>
-        </div>
-      }
-    </div>
-  }
 </div>

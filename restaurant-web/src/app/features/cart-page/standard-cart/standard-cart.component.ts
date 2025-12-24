@@ -232,13 +232,6 @@ export class StandardCartComponent implements OnInit {
           this.cartService.setCustomer(currentCustomerId, currentCustomer.phoneNumber, true);
         }
 
-        // Add to placed orders
-        this.cartService.addPlacedOrder({
-          items: [...this.cartService.items()],
-          total: this.cartService.finalTotal(),
-          date: new Date()
-        });
-
         this.cartService.clearCart();
         alert(`Order placed successfully! Order ID: ${response.id}`);
         this.goBack();
