@@ -59,9 +59,7 @@
                 <div class="item-actions">
                   @if (item.spicinessLevel) {
                     <div class="spiciness-badge" [title]="'Spiciness level ' + item.spicinessLevel">
-                      @for (_ of getSpicinessArray(item.spicinessLevel); track $index) {
-                        <mat-icon class="spicy-icon">whatshot</mat-icon>
-                      }
+                      {{ '🌶️'.repeat(item.spicinessLevel) }}
                     </div>
                   }
                   <button mat-mini-fab color="primary" (click)="addToOrder(item)">
