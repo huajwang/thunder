@@ -19,13 +19,18 @@
           </span>
           <span matListItemLine>${{ (item.variant ? item.variant.price : item.menuItem.price).toFixed(2) }}</span>
           
-          <div class="qty-controls" matListItemMeta>
-            <button mat-icon-button (click)="decreaseQuantity(item.menuItem.id, item.quantity, item.variant?.id)">
-              <mat-icon>remove</mat-icon>
-            </button>
-            <span class="qty">{{ item.quantity }}</span>
-            <button mat-icon-button (click)="increaseQuantity(item.menuItem.id, item.quantity, item.variant?.id)">
-              <mat-icon>add</mat-icon>
+          <div class="item-actions-container" matListItemMeta>
+            <div class="qty-controls">
+              <button mat-icon-button (click)="decreaseQuantity(item.menuItem.id, item.quantity, item.variant?.id)">
+                <mat-icon>remove</mat-icon>
+              </button>
+              <span class="qty">{{ item.quantity }}</span>
+              <button mat-icon-button (click)="increaseQuantity(item.menuItem.id, item.quantity, item.variant?.id)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+            <button mat-icon-button class="delete-btn" (click)="cartService.removeFromCart(item.menuItem.id, item.variant?.id)">
+              <mat-icon>delete_outline</mat-icon>
             </button>
           </div>
         </mat-list-item>
