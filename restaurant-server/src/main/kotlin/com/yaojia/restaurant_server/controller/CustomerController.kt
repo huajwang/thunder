@@ -107,10 +107,9 @@ class CustomerController(
     suspend fun getRewardHistory(
         @PathVariable customerId: Long,
         @RequestParam restaurantId: Long
-    ): List<RewardPointTransaction> {
+    ): Flow<RewardPointTransaction> {
         println("Fetching rewards for customer: $customerId")
-        val rewards = rewardPointTransactionRepository.findByCustomerIdOrderByCreatedAtDesc(customerId).toList()
-        println("Found ${rewards.size} rewards")
+        val rewards = rewardPointTransactionRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
         return rewards
     }
 }

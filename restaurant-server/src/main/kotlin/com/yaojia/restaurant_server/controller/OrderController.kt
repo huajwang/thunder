@@ -288,7 +288,7 @@ class OrderController(
                             orderId = savedOrder.id,
                             points = points,
                             type = TransactionType.EARNED,
-                            description = "Points earned from Order #${savedOrder.id}"
+                            description = "Reward"
                         )
                     )
                     println("Saved reward transaction: $savedTx")

@@ -54,7 +54,7 @@ import { RewardPointTransaction } from '../../core/models/restaurant.types';
       margin-bottom: 20px;
     }
     .points-value {
-      font-size: 2.5rem;
+      font-size: 1.5rem;
       font-weight: bold;
       color: #1976d2;
     }
