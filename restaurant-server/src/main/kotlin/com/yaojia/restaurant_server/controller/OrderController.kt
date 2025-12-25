@@ -167,12 +167,15 @@ class OrderController(
 
         // 2. Calculate total and validate items
         var subTotal = BigDecimal.ZERO
+        var vipFee = BigDecimal.ZERO
         val orderItemsToSave = request.items.map { itemRequest ->
             if (itemRequest.menuItemId == -999L) {
                 // Handle VIP Membership special item
                 val vipItem = getOrCreateVipItem(request.restaurantId)
                 val price = vipItem.price
-                subTotal = subTotal.add(price.multiply(BigDecimal(itemRequest.quantity)))
+                val itemTotal = price.multiply(BigDecimal(itemRequest.quantity))
+                subTotal = subTotal.add(itemTotal)
+                vipFee = vipFee.add(itemTotal)
                 OrderItem(
                     orderId = 0, // Will be updated after order save
                     menuItemId = vipItem.id!!,
@@ -194,7 +197,12 @@ class OrderController(
                     price = variant.price
                 }
 
-                subTotal = subTotal.add(price.multiply(BigDecimal(itemRequest.quantity)))
+                val itemTotal = price.multiply(BigDecimal(itemRequest.quantity))
+                subTotal = subTotal.add(itemTotal)
+                
+                if (menuItem.name == "VIP Membership") {
+                    vipFee = vipFee.add(itemTotal)
+                }
                 
                 OrderItem(
                     orderId = 0, // Will be updated after order save
@@ -211,11 +219,15 @@ class OrderController(
         var isMember = false
         var hasVipItem = false
 
-        if (request.customerId != null) {
-            val customer = customerRepository.findById(request.customerId)
-            if (customer != null) {
-                isMember = customer.isMember
-            }
+        // Fetch customer once
+        var customer = if (request.customerId != null) {
+            customerRepository.findById(request.customerId)
+        } else {
+            null
+        }
+
+        if (customer != null) {
+            isMember = customer.isMember
         }
 
         // Check if order contains VIP Membership item
@@ -227,7 +239,7 @@ class OrderController(
             val vipConfig = restaurantVipConfigRepository.findByRestaurantId(request.restaurantId)
             if (vipConfig != null && vipConfig.isEnabled) {
                 val discountRate = BigDecimal.valueOf(vipConfig.discountRate)
-                discount = subTotal.multiply(discountRate)
+                discount = subTotal.subtract(vipFee).multiply(discountRate)
             }
         }
 
@@ -256,10 +268,9 @@ class OrderController(
         orderItemRepository.saveAll(itemsWithOrderId).toList()
 
         // 5. Upgrade customer to VIP if applicable
-        if (hasVipItem && !isMember && request.customerId != null) {
-            val customer = customerRepository.findById(request.customerId)
-            if (customer != null && !customer.isMember) {
-                customerRepository.save(customer.copy(isMember = true))
+        if (hasVipItem && !isMember && customer != null) {
+            if (!customer!!.isMember) {
+                customer = customerRepository.save(customer!!.copy(isMember = true))
             }
         }
 
@@ -267,34 +278,32 @@ class OrderController(
         var earnedPoints = 0
         var currentTotalPoints = 0
 
-        if (request.customerId != null) {
-            val points = savedOrder.subTotal.subtract(savedOrder.discount).toInt()
-            val customer = customerRepository.findById(request.customerId)
+        if (customer != null) {
+            var pointableAmount = savedOrder.subTotal.subtract(savedOrder.discount).subtract(vipFee)
+            if (pointableAmount < BigDecimal.ZERO) pointableAmount = BigDecimal.ZERO
+            val points = pointableAmount.toInt()
             
-            if (customer != null) {
-                if (points > 0) {
-                    // Update customer points
-                    val updatedCustomer = customerRepository.save(customer.copy(
-                        totalRewardPoints = customer.totalRewardPoints + points
-                    ))
-                    
-                    earnedPoints = points
-                    currentTotalPoints = updatedCustomer.totalRewardPoints
-                    
-                    // Create transaction record
-                    val savedTx = rewardPointTransactionRepository.save(
-                        RewardPointTransaction(
-                            customerId = customer.id!!,
-                            orderId = savedOrder.id,
-                            points = points,
-                            type = TransactionType.EARNED,
-                            description = "Reward"
-                        )
+            if (points > 0) {
+                // Update customer points
+                val updatedCustomer = customerRepository.save(customer!!.copy(
+                    totalRewardPoints = customer!!.totalRewardPoints + points
+                ))
+                
+                earnedPoints = points
+                currentTotalPoints = updatedCustomer.totalRewardPoints
+                
+                // Create transaction record
+                rewardPointTransactionRepository.save(
+                    RewardPointTransaction(
+                        customerId = customer!!.id!!,
+                        orderId = savedOrder.id,
+                        points = points,
+                        type = TransactionType.EARNED,
+                        description = "Reward"
                     )
-                    println("Saved reward transaction: $savedTx")
-                } else {
-                    currentTotalPoints = customer.totalRewardPoints
-                }
+                )
+            } else {
+                currentTotalPoints = customer.totalRewardPoints
             }
         }
 

@@ -214,7 +214,7 @@ export class VipPageComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.cartService.setCustomer(result.customerId, result.phoneNumber, result.isMember);
+        this.cartService.setCustomer(result.id, result.phoneNumber, result.isMember, result.totalRewardPoints);
         // After successful login, add to cart
         this.cartService.addToCart(this.vipItem);
         this.goBack();

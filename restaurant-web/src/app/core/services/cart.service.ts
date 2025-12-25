@@ -120,7 +120,7 @@ export class CartService {
       const currentInfo = this.customerInfo();
       const currentId = this.customerId();
       if (currentInfo && currentId) {
-        this.setCustomer(currentId, currentInfo.phoneNumber, false);
+        this.setCustomer(currentId, currentInfo.phoneNumber, false, currentInfo.totalRewardPoints);
       }
     }
   }

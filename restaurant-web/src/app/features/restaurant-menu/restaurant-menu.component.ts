@@ -53,7 +53,15 @@ export class RestaurantMenuComponent implements OnInit {
         }
         
         // Set context for CartService
-        this.cartService.setContext(data.restaurant.id, data.restaurant.slug, data.restaurant.name, this.currentTable());
+        // Only set context if it's a new restaurant or we are initializing
+        if (this.cartService.restaurantId() !== data.restaurant.id) {
+          this.cartService.setContext(data.restaurant.id, data.restaurant.slug, data.restaurant.name, this.currentTable());
+        } else {
+          // Just update table if needed, but preserve customer info
+          if (this.currentTable()) {
+             this.cartService.tableId.set(this.currentTable());
+          }
+        }
 
         // Set AYCE config
         if (data.restaurant.type === 'AYCE') {
