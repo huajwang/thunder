@@ -31,7 +31,7 @@ class KitchenFragment : Fragment() {
 
         val adapter = OrderAdapter { order ->
             // Handle action click
-            val nextStatus = if (order.status == "PENDING") "PREPARING" else "READY"
+            val nextStatus = "READY"
             lifecycleScope.launch {
                 try {
                     NetworkModule.apiService.updateOrderStatus(order.id, mapOf("status" to nextStatus))

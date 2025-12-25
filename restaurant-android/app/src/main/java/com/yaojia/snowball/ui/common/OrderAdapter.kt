@@ -53,7 +53,7 @@ class OrderAdapter(
             binding.textOrderItems.text = itemsSummary
 
             binding.buttonAction.text = when (order.status) {
-                "PENDING" -> "Start Preparing"
+                "PENDING" -> "Mark Ready"
                 "PREPARING" -> "Mark Ready"
                 "READY" -> "Serve"
                 else -> "Action"
