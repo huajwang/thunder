@@ -227,9 +227,19 @@ export class StandardCartComponent implements OnInit {
       next: (response) => {
         this.isSubmitting = false;
         
-        // If we bought a membership, upgrade the local customer state
-        if (hasVipItem && currentCustomer && currentCustomerId) {
-          this.cartService.setCustomer(currentCustomerId, currentCustomer.phoneNumber, true);
+        // Update customer state if logged in
+        if (currentCustomer && currentCustomerId) {
+          const isNowMember = hasVipItem ? true : currentCustomer.isMember;
+          const newPoints = response.totalRewardPoints !== undefined 
+            ? response.totalRewardPoints 
+            : currentCustomer.totalRewardPoints;
+            
+          this.cartService.setCustomer(
+            currentCustomerId, 
+            currentCustomer.phoneNumber, 
+            isNowMember,
+            newPoints
+          );
         }
 
         this.cartService.clearCart();

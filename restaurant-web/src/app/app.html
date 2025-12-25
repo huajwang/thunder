@@ -12,6 +12,10 @@
              (VIP)
           }
         </button>
+        <button mat-menu-item (click)="openRewards()">
+          <mat-icon>loyalty</mat-icon>
+          <span>My Rewards ({{ customer.totalRewardPoints || 0 }})</span>
+        </button>
       } @else {
         <button mat-menu-item (click)="openMemberLogin()">
           <mat-icon>login</mat-icon>

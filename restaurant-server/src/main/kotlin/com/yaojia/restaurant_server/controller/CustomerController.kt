@@ -1,23 +1,29 @@
 package com.yaojia.restaurant_server.controller
 
 import com.yaojia.restaurant_server.data.Customer
+import com.yaojia.restaurant_server.data.RewardPointTransaction
 import com.yaojia.restaurant_server.repo.CustomerRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
+import com.yaojia.restaurant_server.repo.RewardPointTransactionRepository
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.util.concurrent.ConcurrentHashMap
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toList
+
 data class EnrollRequest(val phoneNumber: String)
 data class LoginRequest(val phoneNumber: String, val code: String)
-data class LoginResponse(val customerId: Long, val phoneNumber: String, val isMember: Boolean)
+data class LoginResponse(val customerId: Long, val phoneNumber: String, val isMember: Boolean, val totalRewardPoints: Int)
 
 @RestController
 @RequestMapping("/api/customers")
 class CustomerController(
     private val customerRepository: CustomerRepository,
-    private val restaurantRepository: RestaurantRepository
+    private val restaurantRepository: RestaurantRepository,
+    private val rewardPointTransactionRepository: RewardPointTransactionRepository
 ) {
     // In-memory store for OTPs (Simulated)
     private val otpStore = ConcurrentHashMap<String, String>()
@@ -92,7 +98,19 @@ class CustomerController(
         return LoginResponse(
             customerId = customer.id!!,
             phoneNumber = customer.phoneNumber,
-            isMember = customer.isMember
+            isMember = customer.isMember,
+            totalRewardPoints = customer.totalRewardPoints
         )
+    }
+
+    @GetMapping("/{customerId}/rewards")
+    suspend fun getRewardHistory(
+        @PathVariable customerId: Long,
+        @RequestParam restaurantId: Long
+    ): List<RewardPointTransaction> {
+        println("Fetching rewards for customer: $customerId")
+        val rewards = rewardPointTransactionRepository.findByCustomerIdOrderByCreatedAtDesc(customerId).toList()
+        println("Found ${rewards.size} rewards")
+        return rewards
     }
 }

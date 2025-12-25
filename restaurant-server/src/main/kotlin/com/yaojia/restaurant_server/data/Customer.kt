@@ -11,6 +11,7 @@ data class Customer(
     val restaurantId: Long,
     val phoneNumber: String,
     val isMember: Boolean = false,
+    val totalRewardPoints: Int = 0,
     val joinedAt: LocalDateTime = LocalDateTime.now(),
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()

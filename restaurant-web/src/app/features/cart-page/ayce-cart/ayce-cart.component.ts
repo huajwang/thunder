@@ -77,6 +77,19 @@ export class AyceCartComponent {
       next: (response) => {
         this.isSubmitting = false;
         
+        // Update customer points if logged in
+        const currentCustomer = this.cartService.customerInfo();
+        const currentCustomerId = this.cartService.customerId();
+        
+        if (currentCustomer && currentCustomerId && response.totalRewardPoints !== undefined) {
+          this.cartService.setCustomer(
+            currentCustomerId,
+            currentCustomer.phoneNumber,
+            currentCustomer.isMember,
+            response.totalRewardPoints
+          );
+        }
+
         // Add to placed orders
         this.cartService.addPlacedOrder({
           items: [...this.cartService.items()],

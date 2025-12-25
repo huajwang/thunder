@@ -35,6 +35,7 @@ class SecurityConfig {
                     .pathMatchers(HttpMethod.GET, "/api/menu-items/**").permitAll()
                     .pathMatchers(HttpMethod.POST, "/api/orders").permitAll()
                     .pathMatchers("/api/customers/login/**").permitAll()
+                    .pathMatchers("/api/customers/*/rewards").permitAll()
                     .pathMatchers("/api/orders/stream").authenticated()
                     .pathMatchers("/api/tables/**").authenticated()
                     .anyExchange().authenticated()

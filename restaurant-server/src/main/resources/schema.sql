@@ -1,4 +1,5 @@
 -- Drop tables if they exist (to ensure schema updates are applied in dev)
+DROP TABLE IF EXISTS reward_point_transactions;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS restaurant_tables;
@@ -84,6 +85,7 @@ CREATE TABLE IF NOT EXISTS customers (
     restaurant_id BIGINT NOT NULL,
     phone_number VARCHAR(50) NOT NULL,
     is_member BOOLEAN DEFAULT FALSE,
+    total_reward_points INT DEFAULT 0,
     joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -138,6 +140,19 @@ CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id),
     FOREIGN KEY (variant_id) REFERENCES menu_item_variants(id)
+);
+
+-- Reward Point Transactions Table
+CREATE TABLE IF NOT EXISTS reward_point_transactions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    customer_id BIGINT NOT NULL,
+    order_id BIGINT,
+    points INT NOT NULL,
+    type VARCHAR(50) NOT NULL, -- EARNED, REDEEMED, ADJUSTMENT
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE SET NULL
 );
 
 -- Users Table

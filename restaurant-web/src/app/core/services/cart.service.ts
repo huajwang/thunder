@@ -26,7 +26,7 @@ export class CartService {
   restaurantName = signal<string | null>(null);
   tableId = signal<number | null>(null);
   customerId = signal<number | null>(null);
-  customerInfo = signal<{phoneNumber: string, isMember: boolean} | null>(null);
+  customerInfo = signal<{phoneNumber: string, isMember: boolean, totalRewardPoints: number} | null>(null);
   vipDiscountRate = signal<number>(0);
   
   // AYCE Support
@@ -175,13 +175,13 @@ export class CartService {
     this.restaurantType.set(type);
   }
 
-  setCustomer(id: number, phoneNumber: string, isMember: boolean) {
+  setCustomer(id: number, phoneNumber: string, isMember: boolean, totalRewardPoints: number = 0) {
     this.customerId.set(id);
-    this.customerInfo.set({ phoneNumber, isMember });
+    this.customerInfo.set({ phoneNumber, isMember, totalRewardPoints });
     
     const rid = this.restaurantId();
     if (rid) {
-      localStorage.setItem(`customer_info_${rid}`, JSON.stringify({ id, phoneNumber, isMember }));
+      localStorage.setItem(`customer_info_${rid}`, JSON.stringify({ id, phoneNumber, isMember, totalRewardPoints }));
     }
   }
 
@@ -191,9 +191,9 @@ export class CartService {
 
     const stored = localStorage.getItem(`customer_info_${rid}`);
     if (stored) {
-      const { id, phoneNumber, isMember } = JSON.parse(stored);
+      const { id, phoneNumber, isMember, totalRewardPoints } = JSON.parse(stored);
       this.customerId.set(id);
-      this.customerInfo.set({ phoneNumber, isMember });
+      this.customerInfo.set({ phoneNumber, isMember, totalRewardPoints: totalRewardPoints || 0 });
     }
   }
 }

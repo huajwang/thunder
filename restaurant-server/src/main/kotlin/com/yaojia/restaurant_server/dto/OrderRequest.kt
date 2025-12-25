@@ -18,5 +18,7 @@ data class OrderItemRequest(
 data class OrderResponse(
     val id: Long,
     val status: String,
-    val totalAmount: java.math.BigDecimal
+    val totalAmount: java.math.BigDecimal,
+    val earnedPoints: Int = 0,
+    val totalRewardPoints: Int = 0
 )

@@ -58,6 +58,8 @@ export interface OrderResponse {
   id: number;
   status: string;
   totalAmount: number;
+  earnedPoints?: number;
+  totalRewardPoints?: number;
 }
 
 export interface OrderItemDto {
@@ -89,6 +91,17 @@ export interface Customer {
   restaurantId: number;
   phoneNumber: string;
   isMember: boolean;
+  totalRewardPoints: number;
+}
+
+export interface RewardPointTransaction {
+  id: number;
+  customerId: number;
+  orderId?: number;
+  points: number;
+  type: 'EARNED' | 'REDEEMED' | 'ADJUSTMENT';
+  description?: string;
+  createdAt: string;
 }
 
 export interface RestaurantTable {

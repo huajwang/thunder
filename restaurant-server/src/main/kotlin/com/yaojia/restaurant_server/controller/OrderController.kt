@@ -6,6 +6,8 @@ import com.yaojia.restaurant_server.data.MenuItem
 import com.yaojia.restaurant_server.data.Order
 import com.yaojia.restaurant_server.data.OrderItem
 import com.yaojia.restaurant_server.data.OrderStatus
+import com.yaojia.restaurant_server.data.RewardPointTransaction
+import com.yaojia.restaurant_server.data.TransactionType
 import com.yaojia.restaurant_server.dto.OrderDetailsDto
 import com.yaojia.restaurant_server.dto.OrderItemDto
 import com.yaojia.restaurant_server.dto.OrderRequest
@@ -16,6 +18,7 @@ import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.MenuItemVariantRepository
 import com.yaojia.restaurant_server.repo.OrderItemRepository
 import com.yaojia.restaurant_server.repo.OrderRepository
+import com.yaojia.restaurant_server.repo.RewardPointTransactionRepository
 import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
 import com.yaojia.restaurant_server.service.OrderEvent
 import com.yaojia.restaurant_server.service.OrderEventService
@@ -41,7 +44,8 @@ class OrderController(
     private val categoryRepository: CategoryRepository,
     private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
     private val orderEventService: OrderEventService,
-    private val customerRepository: CustomerRepository
+    private val customerRepository: CustomerRepository,
+    private val rewardPointTransactionRepository: RewardPointTransactionRepository
 ) {
 
     @GetMapping(value = ["/stream"], produces = [MediaType.TEXT_EVENT_STREAM_VALUE])
@@ -259,6 +263,41 @@ class OrderController(
             }
         }
 
+        // 6. Grant Reward Points
+        var earnedPoints = 0
+        var currentTotalPoints = 0
+
+        if (request.customerId != null) {
+            val points = savedOrder.subTotal.subtract(savedOrder.discount).toInt()
+            val customer = customerRepository.findById(request.customerId)
+            
+            if (customer != null) {
+                if (points > 0) {
+                    // Update customer points
+                    val updatedCustomer = customerRepository.save(customer.copy(
+                        totalRewardPoints = customer.totalRewardPoints + points
+                    ))
+                    
+                    earnedPoints = points
+                    currentTotalPoints = updatedCustomer.totalRewardPoints
+                    
+                    // Create transaction record
+                    val savedTx = rewardPointTransactionRepository.save(
+                        RewardPointTransaction(
+                            customerId = customer.id!!,
+                            orderId = savedOrder.id,
+                            points = points,
+                            type = TransactionType.EARNED,
+                            description = "Points earned from Order #${savedOrder.id}"
+                        )
+                    )
+                    println("Saved reward transaction: $savedTx")
+                } else {
+                    currentTotalPoints = customer.totalRewardPoints
+                }
+            }
+        }
+
         orderEventService.emit(
             OrderEvent(
                 orderId = savedOrder.id!!,
@@ -271,7 +310,9 @@ class OrderController(
         return OrderResponse(
             id = savedOrder.id!!,
             status = savedOrder.status.name,
-            totalAmount = savedOrder.totalAmount
+            totalAmount = savedOrder.totalAmount,
+            earnedPoints = earnedPoints,
+            totalRewardPoints = currentTotalPoints
         )
     }
 
