@@ -75,15 +75,24 @@ mat-list-item:hover {
 }
 
 .qty-controls button {
-  width: 32px;
-  height: 32px;
-  line-height: 32px;
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important; /* Ensure it doesn't shrink */
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
 }
 
 .qty-controls mat-icon {
   font-size: 18px;
   width: 18px;
   height: 18px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .qty {
@@ -248,9 +257,11 @@ mat-radio-group {
 }
 
 .item-actions-container {
-  display: flex;
-  align-items: center;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
   gap: 12px;
+  flex-wrap: nowrap !important;
 }
 
 .delete-btn {
