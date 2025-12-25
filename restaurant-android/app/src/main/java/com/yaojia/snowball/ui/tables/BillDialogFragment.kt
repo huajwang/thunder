@@ -35,6 +35,8 @@ class BillDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
+    private var currentOrders: List<com.yaojia.snowball.data.model.Order> = emptyList()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -70,6 +72,24 @@ class BillDialogFragment : BottomSheetDialogFragment() {
             dismiss()
         }
 
+        binding.buttonPrintReceipt.setOnClickListener {
+            Toast.makeText(context, "Print Receipt clicked", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.buttonPaid.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    currentOrders.forEach { order ->
+                        NetworkModule.apiService.updateOrderStatus(order.id, mapOf("status" to "PAID"))
+                    }
+                    Toast.makeText(context, "Orders marked as PAID", Toast.LENGTH_SHORT).show()
+                    dismiss()
+                } catch (e: Exception) {
+                    Toast.makeText(context, "Error updating orders: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
         lifecycleScope.launch {
             val restaurantId = NetworkModule.getTokenManager().getRestaurantId()
             loadRestaurantInfo(restaurantId)
@@ -92,13 +112,14 @@ class BillDialogFragment : BottomSheetDialogFragment() {
 
     private suspend fun loadBill(tableId: Long, adapter: BillAdapter) {
         try {
-            val orders = NetworkModule.apiService.getTableBill(tableId)
-            adapter.submitList(orders)
+            val allOrders = NetworkModule.apiService.getTableBill(tableId)
+            currentOrders = allOrders.filter { it.status != "PAID" && it.status != "CANCELLED" }
+            adapter.submitList(currentOrders)
             
-            val subTotal = orders.sumOf { it.subTotal }
-            val tax = orders.sumOf { it.tax }
-            val discount = orders.sumOf { it.discount }
-            val total = orders.sumOf { it.totalAmount }
+            val subTotal = currentOrders.sumOf { it.subTotal }
+            val tax = currentOrders.sumOf { it.tax }
+            val discount = currentOrders.sumOf { it.discount }
+            val total = currentOrders.sumOf { it.totalAmount }
             
             binding.textSubtotal.text = "Subtotal: $%.2f".format(subTotal)
             binding.textTax.text = "Tax: $%.2f".format(tax)
