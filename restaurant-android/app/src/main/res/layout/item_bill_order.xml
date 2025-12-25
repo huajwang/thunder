@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/text_order_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Order Time: 12:30 PM"
+        android:textStyle="bold"
+        android:textAppearance="?attr/textAppearanceBody2" />
+
+    <TextView
+        android:id="@+id/text_bill_items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="monospace"
+        tools:text="2x Pizza          $20.00\n1x Coke            $2.00" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="?android:attr/listDivider" />
+
+</LinearLayout>

@@ -6,10 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.yaojia.snowball.data.network.NetworkModule
 import com.yaojia.snowball.databinding.DialogBillBinding
-import com.yaojia.snowball.ui.common.OrderAdapter
 import kotlinx.coroutines.launch
 
 class BillDialogFragment : BottomSheetDialogFragment() {
@@ -40,6 +41,13 @@ class BillDialogFragment : BottomSheetDialogFragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        val dialog = dialog as? BottomSheetDialog
+        dialog?.behavior?.state = BottomSheetBehavior.STATE_EXPANDED
+        dialog?.behavior?.skipCollapsed = true
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -48,9 +56,7 @@ class BillDialogFragment : BottomSheetDialogFragment() {
 
         binding.textBillTitle.text = "Bill for Table #$tableNumber"
 
-        val adapter = OrderAdapter { 
-            // No action in bill view
-        }
+        val adapter = BillAdapter()
         binding.recyclerViewBillOrders.adapter = adapter
 
         binding.buttonClose.setOnClickListener {
@@ -67,12 +73,19 @@ class BillDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
-    private suspend fun loadBill(tableId: Long, adapter: OrderAdapter) {
+    private suspend fun loadBill(tableId: Long, adapter: BillAdapter) {
         try {
             val orders = NetworkModule.apiService.getTableBill(tableId)
             adapter.submitList(orders)
             
+            val subTotal = orders.sumOf { it.subTotal }
+            val tax = orders.sumOf { it.tax }
+            val discount = orders.sumOf { it.discount }
             val total = orders.sumOf { it.totalAmount }
+            
+            binding.textSubtotal.text = "Subtotal: $%.2f".format(subTotal)
+            binding.textTax.text = "Tax: $%.2f".format(tax)
+            binding.textDiscount.text = "Discount: -$%.2f".format(discount)
             binding.textTotalAmount.text = "Total: $%.2f".format(total)
         } catch (e: Exception) {
             // Toast.makeText(context, "Error fetching bill: ${e.message}", Toast.LENGTH_SHORT).show()

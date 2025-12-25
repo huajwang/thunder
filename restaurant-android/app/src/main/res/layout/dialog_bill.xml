@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="16dp">
 
     <TextView
@@ -18,22 +18,48 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_bill_orders"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/text_total_amount"
         app:layout_constraintTop_toBottomOf="@id/text_bill_title"
-        tools:listitem="@layout/item_order" />
+        tools:listitem="@layout/item_bill_order" />
+
+    <TextView
+        android:id="@+id/text_subtotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Subtotal: $0.00"
+        app:layout_constraintTop_toBottomOf="@id/recycler_view_bill_orders"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_tax"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tax: $0.00"
+        app:layout_constraintTop_toBottomOf="@id/text_subtotal"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/text_discount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Discount: -$0.00"
+        android:textColor="@android:color/holo_green_dark"
+        app:layout_constraintTop_toBottomOf="@id/text_tax"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
         android:id="@+id/text_total_amount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="16dp"
         android:text="Total: $0.00"
         android:textAppearance="?attr/textAppearanceHeadline6"
-        app:layout_constraintBottom_toTopOf="@id/button_close"
+        app:layout_constraintTop_toBottomOf="@id/text_discount"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
@@ -41,6 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Close"
+        app:layout_constraintTop_toBottomOf="@id/text_total_amount"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
