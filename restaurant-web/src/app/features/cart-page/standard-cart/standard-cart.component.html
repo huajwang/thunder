@@ -15,7 +15,6 @@
           <span matListItemTitle>
             {{ item.menuItem.name }} 
             @if (item.variant) { ({{ item.variant.name }}) }
-            x {{ item.quantity }}
           </span>
           <span matListItemLine>${{ (item.variant ? item.variant.price : item.menuItem.price).toFixed(2) }}</span>
           
