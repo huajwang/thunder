@@ -7,14 +7,6 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/text_order_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Order Time: 12:30 PM"
-        android:textStyle="bold"
-        android:textAppearance="?attr/textAppearanceBody2" />
-
-    <TextView
         android:id="@+id/text_bill_items"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

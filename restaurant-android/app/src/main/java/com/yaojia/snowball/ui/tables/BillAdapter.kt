@@ -24,16 +24,6 @@ class BillAdapter : ListAdapter<Order, BillAdapter.BillViewHolder>(BillDiffCallb
     class BillViewHolder(private val binding: ItemBillOrderBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(order: Order) {
-            // Format time
-            try {
-                // Assuming createdAt is ISO string, but for simplicity just showing raw or parsing if standard
-                // If createdAt is "2023-10-27T10:00:00Z", we might want to format it.
-                // For now, let's just show the order ID or simple text
-                binding.textOrderTime.text = "Order #${order.id}"
-            } catch (e: Exception) {
-                binding.textOrderTime.text = "Order #${order.id}"
-            }
-
             val sb = StringBuilder()
             for (item in order.items) {
                 val name = if (item.variantName != null) {

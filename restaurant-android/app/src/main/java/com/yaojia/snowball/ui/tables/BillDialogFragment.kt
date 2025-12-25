@@ -12,6 +12,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.yaojia.snowball.data.network.NetworkModule
 import com.yaojia.snowball.databinding.DialogBillBinding
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class BillDialogFragment : BottomSheetDialogFragment() {
 
@@ -55,6 +58,10 @@ class BillDialogFragment : BottomSheetDialogFragment() {
         val tableNumber = arguments?.getInt(ARG_TABLE_NUMBER) ?: 0
 
         binding.textBillTitle.text = "Bill for Table #$tableNumber"
+        
+        // Set current date
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd hh:mm a", Locale.getDefault())
+        binding.textBillDate.text = "Date: ${dateFormat.format(Date())}"
 
         val adapter = BillAdapter()
         binding.recyclerViewBillOrders.adapter = adapter
@@ -64,12 +71,22 @@ class BillDialogFragment : BottomSheetDialogFragment() {
         }
 
         lifecycleScope.launch {
+            val restaurantId = NetworkModule.getTokenManager().getRestaurantId()
+            loadRestaurantInfo(restaurantId)
             loadBill(tableId, adapter)
             
-            val restaurantId = NetworkModule.getTokenManager().getRestaurantId()
             NetworkModule.realtimeService.subscribeToOrders(restaurantId).collect {
                 loadBill(tableId, adapter)
             }
+        }
+    }
+
+    private suspend fun loadRestaurantInfo(restaurantId: Long) {
+        try {
+            val restaurant = NetworkModule.apiService.getRestaurant(restaurantId)
+            binding.textRestaurantName.text = restaurant.name
+        } catch (e: Exception) {
+            binding.textRestaurantName.text = "Restaurant"
         }
     }
 
