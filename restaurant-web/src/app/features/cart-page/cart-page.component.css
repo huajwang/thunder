@@ -48,6 +48,7 @@ mat-list-item {
   margin-bottom: 12px;
   border-radius: 8px;
   transition: background-color 0.2s;
+  align-items: center !important; /* Ensure vertical centering */
 }
 
 mat-list-item:hover {
@@ -262,6 +263,7 @@ mat-radio-group {
   align-items: center !important;
   gap: 12px;
   flex-wrap: nowrap !important;
+  align-self: center !important;
 }
 
 .delete-btn {
