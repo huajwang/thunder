@@ -8,4 +8,5 @@ import kotlinx.coroutines.flow.Flow
 @Repository
 interface MenuItemVariantRepository : CoroutineCrudRepository<MenuItemVariant, Long> {
     fun findByMenuItemId(menuItemId: Long): Flow<MenuItemVariant>
+    fun findByMenuItemIdIn(menuItemIds: List<Long>): Flow<MenuItemVariant>
 }

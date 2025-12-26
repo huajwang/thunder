@@ -1,27 +1,37 @@
 package com.yaojia.restaurant_server
 
 import com.yaojia.restaurant_server.data.Category
+import com.yaojia.restaurant_server.data.Menu
+import com.yaojia.restaurant_server.data.MenuHolidayOverride
 import com.yaojia.restaurant_server.data.MenuItem
 import com.yaojia.restaurant_server.data.MenuItemVariant
+import com.yaojia.restaurant_server.data.MenuSchedule
 import com.yaojia.restaurant_server.data.Restaurant
 import com.yaojia.restaurant_server.data.RestaurantTable
 import com.yaojia.restaurant_server.data.RestaurantVipConfig
 import com.yaojia.restaurant_server.data.User
 import com.yaojia.restaurant_server.repo.CategoryRepository
+import com.yaojia.restaurant_server.repo.MenuHolidayOverrideRepository
 import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.MenuItemVariantRepository
+import com.yaojia.restaurant_server.repo.MenuRepository
+import com.yaojia.restaurant_server.repo.MenuScheduleRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
 import com.yaojia.restaurant_server.repo.RestaurantTableRepository
 import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
 import com.yaojia.restaurant_server.repo.UserRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
+import org.springframework.r2dbc.core.DatabaseClient
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalTime
 
 @Configuration
 @Profile("dev") // Only run in dev profile
@@ -32,7 +42,11 @@ class DataSeeder(
     private val menuItemVariantRepository: MenuItemVariantRepository,
     private val restaurantTableRepository: RestaurantTableRepository,
     private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val menuRepository: MenuRepository,
+    private val menuScheduleRepository: MenuScheduleRepository,
+    private val menuHolidayOverrideRepository: MenuHolidayOverrideRepository,
+    private val databaseClient: DatabaseClient
 ) {
     private val logger = LoggerFactory.getLogger(DataSeeder::class.java)
 
@@ -882,12 +896,13 @@ class DataSeeder(
                 slug = slug,
                 description = "All You Can Eat Buffet",
                 imageUrl = "https://images.unsplash.com/photo-1544148103-0773bf10d330?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80",
-                address = "500 Buffet Way, Orlando, FL",
-                phoneNumber = "555-0500",
-                latitude = 28.5383,
-                longitude = -81.3792,
+                address = "554 Windjammer Way, Waterloo, Ontario, Canada",
+                phoneNumber = "437-343-0411",
+                latitude = 43.5042295,
+                longitude = -80.5606626,
                 businessHours = "Mon-Sun: 8:00 AM - 9:00 PM",
-                type = "AYCE"
+                type = "AYCE",
+                timezone = "America/Toronto"
             )
         )
 
@@ -913,8 +928,8 @@ class DataSeeder(
             Category(restaurantId = restaurant.id!!, name = "Drinks", displayOrder = 2)
         )
 
-        // 4. Create Menu Items (Food is $0.00)
-        menuItemRepository.save(
+        // 4. Create Menu Items
+        val roastBeef = menuItemRepository.save(
             MenuItem(
                 restaurantId = restaurant.id!!,
                 categoryId = buffet.id,
@@ -924,7 +939,7 @@ class DataSeeder(
                 imageUrl = "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=500&q=60"
             )
         )
-        menuItemRepository.save(
+        val friedChicken = menuItemRepository.save(
             MenuItem(
                 restaurantId = restaurant.id!!,
                 categoryId = buffet.id,
@@ -934,7 +949,7 @@ class DataSeeder(
                 imageUrl = "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=500&q=60"
             )
         )
-        menuItemRepository.save(
+        val mashedPotatoes = menuItemRepository.save(
             MenuItem(
                 restaurantId = restaurant.id!!,
                 categoryId = buffet.id,
@@ -945,10 +960,7 @@ class DataSeeder(
             )
         )
         
-        // Drinks might still be charged? Let's assume included for simplicity or charged separately.
-        // Let's make them charged to show hybrid model capability, or $0 if fully inclusive.
-        // User said "charged by head counts", usually drinks are extra or included. Let's make them $0 for now to be safe.
-        menuItemRepository.save(
+        val soda = menuItemRepository.save(
             MenuItem(
                 restaurantId = restaurant.id!!,
                 categoryId = drinks.id,
@@ -958,6 +970,89 @@ class DataSeeder(
                 imageUrl = "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=60"
             )
         )
+
+        // 5. Create Menus
+        val lunchMenu = menuRepository.save(
+            Menu(
+                restaurantId = restaurant.id!!,
+                name = "Lunch Menu",
+                description = "Weekday Lunch Special"
+            )
+        )
+        val dinnerMenu = menuRepository.save(
+            Menu(
+                restaurantId = restaurant.id!!,
+                name = "Dinner Menu",
+                description = "Full Dinner Buffet"
+            )
+        )
+
+        // 6. Create Schedules
+        // Lunch: Mon-Fri 11:00 - 16:00
+        listOf("MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY").forEach { day ->
+            menuScheduleRepository.save(
+                MenuSchedule(
+                    restaurantId = restaurant.id!!,
+                    menuId = lunchMenu.id!!,
+                    dayOfWeek = day,
+                    startTime = LocalTime.of(11, 0),
+                    endTime = LocalTime.of(16, 0)
+                )
+            )
+            // Dinner: Mon-Fri 16:00 - 22:00
+            menuScheduleRepository.save(
+                MenuSchedule(
+                    restaurantId = restaurant.id!!,
+                    menuId = dinnerMenu.id!!,
+                    dayOfWeek = day,
+                    startTime = LocalTime.of(16, 0),
+                    endTime = LocalTime.of(22, 0)
+                )
+            )
+        }
+        // Weekend Dinner: Sat-Sun 11:00 - 22:00
+        listOf("SATURDAY", "SUNDAY").forEach { day ->
+            menuScheduleRepository.save(
+                MenuSchedule(
+                    restaurantId = restaurant.id!!,
+                    menuId = dinnerMenu.id!!,
+                    dayOfWeek = day,
+                    startTime = LocalTime.of(11, 0),
+                    endTime = LocalTime.of(22, 0)
+                )
+            )
+        }
+
+        // 7. Create Holiday Override
+        // Christmas Dinner
+        menuHolidayOverrideRepository.save(
+            MenuHolidayOverride(
+                restaurantId = restaurant.id!!,
+                menuId = dinnerMenu.id!!,
+                overrideDate = LocalDate.of(2025, 12, 25),
+                startTime = LocalTime.of(11, 0),
+                endTime = LocalTime.of(22, 0)
+            )
+        )
+
+        // 8. Map Items to Menus
+        // Lunch: Fried Chicken, Mashed Potatoes, Soda
+        listOf(friedChicken, mashedPotatoes, soda).forEach { item ->
+            databaseClient.sql("INSERT INTO menu_item_mappings (menu_id, menu_item_id) VALUES (:menuId, :itemId)")
+                .bind("menuId", lunchMenu.id!!)
+                .bind("itemId", item.id!!)
+                .then()
+                .awaitSingleOrNull()
+        }
+
+        // Dinner: Roast Beef, Fried Chicken, Mashed Potatoes, Soda
+        listOf(roastBeef, friedChicken, mashedPotatoes, soda).forEach { item ->
+            databaseClient.sql("INSERT INTO menu_item_mappings (menu_id, menu_item_id) VALUES (:menuId, :itemId)")
+                .bind("menuId", dinnerMenu.id!!)
+                .bind("itemId", item.id!!)
+                .then()
+                .awaitSingleOrNull()
+        }
 
         logger.info("Seeding Golden Corral completed!")
     }

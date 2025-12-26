@@ -12,6 +12,13 @@ export interface Restaurant {
   type?: 'STANDARD' | 'AYCE';
 }
 
+export interface MenuResponse {
+  id: number;
+  name: string;
+  description?: string;
+  categories: Category[];
+}
+
 export interface Category {
   id: number;
   restaurantId: number;

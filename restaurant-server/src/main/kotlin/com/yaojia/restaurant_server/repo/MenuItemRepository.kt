@@ -14,4 +14,7 @@ interface MenuItemRepository : CoroutineCrudRepository<MenuItem, Long> {
 
     @Query("SELECT * FROM menu_items WHERE restaurant_id = :restaurantId AND (LOWER(name) LIKE CONCAT('%', LOWER(:query), '%') OR LOWER(description) LIKE CONCAT('%', LOWER(:query), '%'))")
     fun searchByRestaurantIdAndQuery(restaurantId: Long, query: String): Flow<MenuItem>
+
+    @Query("SELECT mi.* FROM menu_items mi JOIN menu_item_mappings mim ON mi.id = mim.menu_item_id WHERE mim.menu_id = :menuId")
+    fun findByMenuId(menuId: Long): Flow<MenuItem>
 }

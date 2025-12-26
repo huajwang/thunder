@@ -12,6 +12,7 @@ data class Restaurant(
     val slug: String,
     val description: String? = null,
     val imageUrl: String? = null,
+    val timezone: String = "America/Toronto",
     val address: String? = null,
     val phoneNumber: String? = null,
     val latitude: Double? = null,

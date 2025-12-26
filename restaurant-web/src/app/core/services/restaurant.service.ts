@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, NgZone } from '@angular/core';
-import { map, Observable, switchMap } from 'rxjs';
-import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant, RestaurantTable, RestaurantVipConfig } from '../models/restaurant.types';
+import { map, Observable, switchMap, of } from 'rxjs';
+import { Category, MenuItem, OrderDetails, OrderRequest, OrderResponse, Restaurant, RestaurantTable, RestaurantVipConfig, MenuResponse } from '../models/restaurant.types';
 
 @Injectable({
   providedIn: 'root'
@@ -94,26 +94,38 @@ export class RestaurantService {
     return this.http.get<RestaurantVipConfig>(`${this.API_URL}/restaurants/${restaurantId}/vip-config`);
   }
 
+  getActiveMenu(slug: string): Observable<MenuResponse> {
+    return this.http.get<MenuResponse>(`${this.API_URL}/restaurants/slug/${slug}/active-menu`);
+  }
+
   // Helper to get the full menu structure
   getFullMenu(slug: string): Observable<{ restaurant: Restaurant, categories: Category[] }> {
     return this.getRestaurantBySlug(slug).pipe(
       switchMap(restaurant => {
-        return this.http.get<Category[]>(`${this.API_URL}/restaurants/${restaurant.id}/categories`).pipe(
-          switchMap(categories => {
-            return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurant.id}/menu-items`).pipe(
-              map(items => {
-                // Map items to their categories
-                const categoriesWithItems = categories
-                  .filter(cat => cat.name !== 'Memberships') // Filter out Memberships category
-                  .map(cat => ({
-                    ...cat,
-                    items: items.filter(item => item.categoryId === cat.id)
-                  }));
-                return { restaurant, categories: categoriesWithItems };
-              })
-            );
-          })
-        );
+        if (restaurant.type === 'AYCE') {
+          return this.getActiveMenu(slug).pipe(
+            map(menuResponse => {
+              return { restaurant, categories: menuResponse.categories };
+            })
+          );
+        } else {
+          return this.http.get<Category[]>(`${this.API_URL}/restaurants/${restaurant.id}/categories`).pipe(
+            switchMap(categories => {
+              return this.http.get<MenuItem[]>(`${this.API_URL}/restaurants/${restaurant.id}/menu-items`).pipe(
+                map(items => {
+                  // Map items to their categories
+                  const categoriesWithItems = categories
+                    .filter(cat => cat.name !== 'Memberships') // Filter out Memberships category
+                    .map(cat => ({
+                      ...cat,
+                      items: items.filter(item => item.categoryId === cat.id)
+                    }));
+                  return { restaurant, categories: categoriesWithItems };
+                })
+              );
+            })
+          );
+        }
       })
     );
   }

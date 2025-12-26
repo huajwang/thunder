@@ -1,15 +1,20 @@
 -- Drop tables if they exist (to ensure schema updates are applied in dev)
+DROP TABLE IF EXISTS menu_item_mappings;
+DROP TABLE IF EXISTS menu_holiday_overrides;
+DROP TABLE IF EXISTS menu_schedules;
 DROP TABLE IF EXISTS reward_point_transactions;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS restaurant_tables;
 DROP TABLE IF EXISTS menu_item_variants;
 DROP TABLE IF EXISTS menu_items;
+DROP TABLE IF EXISTS menus;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS customers;
 DROP TABLE IF EXISTS restaurant_vip_configs;
 DROP TABLE IF EXISTS restaurants;
+
 
 -- Restaurants Table
 CREATE TABLE IF NOT EXISTS restaurants (
@@ -18,6 +23,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
     slug VARCHAR(255) NOT NULL UNIQUE COMMENT 'URL-friendly identifier',
     description TEXT,
     image_url VARCHAR(512),
+    timezone VARCHAR(50) DEFAULT 'America/Toronto' NOT NULL,
     address VARCHAR(255),
     phone_number VARCHAR(50),
     latitude DOUBLE,
@@ -26,6 +32,40 @@ CREATE TABLE IF NOT EXISTS restaurants (
     type VARCHAR(50) DEFAULT 'STANDARD',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+-- 1. Menus Table (Groups items into Lunch, Dinner, etc.)
+CREATE TABLE IF NOT EXISTS menus (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    restaurant_id BIGINT NOT NULL,
+    name VARCHAR(100) NOT NULL COMMENT 'e.g., Weekday Lunch, Holiday Dinner',
+    description VARCHAR(255),
+    is_active BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS menu_holiday_overrides (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    restaurant_id BIGINT NOT NULL,
+    menu_id BIGINT NOT NULL,
+    override_date DATE NOT NULL,
+    start_time TIME DEFAULT '00:00:00',
+    end_time TIME DEFAULT '23:59:59',
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE
+);
+
+-- 2. Menu Schedules (Recurring weekly logic)
+CREATE TABLE IF NOT EXISTS menu_schedules (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    restaurant_id BIGINT NOT NULL,
+    menu_id BIGINT NOT NULL,
+    day_of_week ENUM('MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY') NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE
 );
 
 -- Categories Table (e.g., Appetizers, Drinks)
@@ -54,6 +94,14 @@ CREATE TABLE IF NOT EXISTS menu_items (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS menu_item_mappings (
+    menu_id BIGINT NOT NULL,
+    menu_item_id BIGINT NOT NULL,
+    PRIMARY KEY (menu_id, menu_item_id),
+    FOREIGN KEY (menu_id) REFERENCES menus(id) ON DELETE CASCADE,
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE
 );
 
 -- Menu Item Variants Table

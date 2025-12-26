@@ -9,6 +9,8 @@ import com.yaojia.restaurant_server.repo.MenuItemRepository
 import com.yaojia.restaurant_server.repo.MenuItemVariantRepository
 import com.yaojia.restaurant_server.repo.RestaurantRepository
 import com.yaojia.restaurant_server.repo.RestaurantVipConfigRepository
+import com.yaojia.restaurant_server.service.MenuService
+import com.yaojia.restaurant_server.dto.MenuResponse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
@@ -23,13 +25,20 @@ class RestaurantController(
     private val categoryRepository: CategoryRepository,
     private val menuItemRepository: MenuItemRepository,
     private val menuItemVariantRepository: MenuItemVariantRepository,
-    private val restaurantVipConfigRepository: RestaurantVipConfigRepository
+    private val restaurantVipConfigRepository: RestaurantVipConfigRepository,
+    private val menuService: MenuService
 ) {
 
     @GetMapping("/slug/{slug}")
     suspend fun getRestaurantBySlug(@PathVariable slug: String): Restaurant {
         return restaurantRepository.findBySlug(slug).firstOrNull()
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found")
+    }
+
+    @GetMapping("/slug/{slug}/active-menu")
+    suspend fun getActiveMenu(@PathVariable slug: String): MenuResponse {
+        return menuService.getActiveMenu(slug)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "No active menu found for current time")
     }
 
     @GetMapping("/{id}")
