@@ -61,22 +61,6 @@ class CustomerController(
 
     @PostMapping("/login/request-code")
     suspend fun requestLoginCode(@RequestParam restaurantId: Long, @RequestBody request: EnrollRequest) {
-        // Check if customer exists
-        val customer = customerRepository.findByRestaurantIdAndPhoneNumber(restaurantId, request.phoneNumber)
-        if (customer == null) {
-             // For now, auto-create non-member customer if they don't exist? 
-             // Or just allow login for anyone? 
-             // Requirement says "Customer can login by his phone number".
-             // Let's create a non-member record if missing.
-             customerRepository.save(
-                 Customer(
-                     restaurantId = restaurantId,
-                     phoneNumber = request.phoneNumber,
-                     isMember = false // Default to false, upgrade via payment
-                 )
-             )
-        }
-
         // Generate OTP (Fixed for dev)
         val otp = "123456"
         otpStore["$restaurantId:${request.phoneNumber}"] = otp
@@ -90,13 +74,23 @@ class CustomerController(
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid code")
         }
 
-        val customer = customerRepository.findByRestaurantIdAndPhoneNumber(restaurantId, request.phoneNumber)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")
+        var customer = customerRepository.findByRestaurantIdAndPhoneNumber(restaurantId, request.phoneNumber)
+        
+        if (customer == null) {
+            // Create new customer on first login
+            customer = customerRepository.save(
+                Customer(
+                    restaurantId = restaurantId,
+                    phoneNumber = request.phoneNumber,
+                    isMember = false
+                )
+            )
+        }
 
         otpStore.remove("$restaurantId:${request.phoneNumber}")
 
         return LoginResponse(
-            customerId = customer.id!!,
+            customerId = customer!!.id!!,
             phoneNumber = customer.phoneNumber,
             isMember = customer.isMember,
             totalRewardPoints = customer.totalRewardPoints
