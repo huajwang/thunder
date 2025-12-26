@@ -22,6 +22,7 @@ class AuthenticationManager(private val jwtUtil: JwtUtil) : ReactiveAuthenticati
                     val username = jwtUtil.getUsernameFromToken(authToken)
                     val role = jwtUtil.getRoleFromToken(authToken)
                     val restaurantId = jwtUtil.getRestaurantIdFromToken(authToken)
+                    val customerId = jwtUtil.getCustomerIdFromToken(authToken)
                     
                     val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
                     
@@ -30,8 +31,12 @@ class AuthenticationManager(private val jwtUtil: JwtUtil) : ReactiveAuthenticati
                         authToken,
                         authorities
                     )
-                    // Store restaurantId in details for later access
-                    auth.details = mapOf("restaurantId" to restaurantId)
+                    // Store restaurantId and customerId in details for later access
+                    val details = mutableMapOf<String, Any>("restaurantId" to restaurantId)
+                    if (customerId != null) {
+                        details["customerId"] = customerId
+                    }
+                    auth.details = details
                     auth
                 } else {
                     logger.warn("Token validation failed")

@@ -155,9 +155,21 @@ class OrderController(
 
     @PostMapping
     @Transactional
-    suspend fun placeOrder(@RequestBody request: OrderRequest): OrderResponse {
+    suspend fun placeOrder(@RequestBody request: OrderRequest, authentication: Authentication?): OrderResponse {
         if (request.items.isEmpty()) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Order must contain items")
+        }
+
+        // Security: Resolve Customer ID
+        var resolvedCustomerId = request.customerId
+        if (authentication != null && authentication.isAuthenticated) {
+            val details = authentication.details as? Map<*, *>
+            val authCustomerId = details?.get("customerId") as? Long
+            
+            if (authCustomerId != null) {
+                // If user is logged in as a customer, force the ID to match
+                resolvedCustomerId = authCustomerId
+            }
         }
 
         // 1. Fetch all menu items to get current prices
@@ -220,8 +232,8 @@ class OrderController(
         var hasVipItem = false
 
         // Fetch customer once
-        var customer = if (request.customerId != null) {
-            customerRepository.findById(request.customerId)
+        var customer = if (resolvedCustomerId != null) {
+            customerRepository.findById(resolvedCustomerId)
         } else {
             null
         }
@@ -252,7 +264,7 @@ class OrderController(
             Order(
                 restaurantId = request.restaurantId,
                 tableId = request.tableId,
-                customerId = request.customerId,
+                customerId = resolvedCustomerId,
                 deliveryAddress = request.deliveryAddress,
                 phoneNumber = request.phoneNumber,
                 subTotal = subTotal,
@@ -278,6 +290,7 @@ class OrderController(
         var earnedPoints = 0
         var currentTotalPoints = 0
 
+        println("Processing reward points for customer: $resolvedCustomerId")
         if (customer != null) {
             var pointableAmount = savedOrder.subTotal.subtract(savedOrder.discount).subtract(vipFee)
             if (pointableAmount < BigDecimal.ZERO) pointableAmount = BigDecimal.ZERO
@@ -305,7 +318,10 @@ class OrderController(
             } else {
                 currentTotalPoints = customer.totalRewardPoints
             }
+        } else {
+            println("No customer ID in request")
         }
+
 
         orderEventService.emit(
             OrderEvent(

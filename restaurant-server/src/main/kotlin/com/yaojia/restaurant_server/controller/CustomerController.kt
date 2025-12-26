@@ -11,19 +11,28 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import java.util.concurrent.ConcurrentHashMap
 
+import com.yaojia.restaurant_server.security.JwtUtil
+import org.springframework.http.ResponseCookie
+import org.springframework.http.server.reactive.ServerHttpResponse
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.toList
 
 data class EnrollRequest(val phoneNumber: String)
 data class LoginRequest(val phoneNumber: String, val code: String)
-data class LoginResponse(val customerId: Long, val phoneNumber: String, val isMember: Boolean, val totalRewardPoints: Int)
+data class LoginResponse(
+    val customerId: Long, 
+    val phoneNumber: String, 
+    val isMember: Boolean, 
+    val totalRewardPoints: Int,
+    val accessToken: String
+)
 
 @RestController
 @RequestMapping("/api/customers")
 class CustomerController(
     private val customerRepository: CustomerRepository,
     private val restaurantRepository: RestaurantRepository,
-    private val rewardPointTransactionRepository: RewardPointTransactionRepository
+    private val rewardPointTransactionRepository: RewardPointTransactionRepository,
+    private val jwtUtil: JwtUtil
 ) {
     // In-memory store for OTPs (Simulated)
     private val otpStore = ConcurrentHashMap<String, String>()
@@ -68,7 +77,11 @@ class CustomerController(
     }
 
     @PostMapping("/login")
-    suspend fun login(@RequestParam restaurantId: Long, @RequestBody request: LoginRequest): LoginResponse {
+    suspend fun login(
+        @RequestParam restaurantId: Long, 
+        @RequestBody request: LoginRequest,
+        response: ServerHttpResponse
+    ): LoginResponse {
         val storedOtp = otpStore["$restaurantId:${request.phoneNumber}"]
         if (storedOtp == null || storedOtp != request.code) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid code")
@@ -89,11 +102,31 @@ class CustomerController(
 
         otpStore.remove("$restaurantId:${request.phoneNumber}")
 
+        // Generate Tokens
+        val accessToken = jwtUtil.generateToken(
+            username = customer!!.phoneNumber,
+            restaurantId = restaurantId,
+            role = "CUSTOMER",
+            customerId = customer.id
+        )
+        
+        val refreshToken = jwtUtil.generateRefreshToken(customer.phoneNumber)
+
+        // Set Refresh Token Cookie
+        val cookie = ResponseCookie.from("refresh_token", refreshToken)
+            .httpOnly(true)
+            .path("/")
+            .maxAge(7 * 24 * 60 * 60) // 7 days
+            .build()
+        
+        response.addCookie(cookie)
+
         return LoginResponse(
-            customerId = customer!!.id!!,
+            customerId = customer.id!!,
             phoneNumber = customer.phoneNumber,
             isMember = customer.isMember,
-            totalRewardPoints = customer.totalRewardPoints
+            totalRewardPoints = customer.totalRewardPoints,
+            accessToken = accessToken
         )
     }
 

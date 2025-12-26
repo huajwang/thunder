@@ -19,16 +19,21 @@ class JwtUtil(
     private val secret = "ThisIsASecretKeyForJwtTokenGenerationAndValidation1234567890"
     private val key: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
 
-    fun generateToken(username: String, restaurantId: Long, role: String): String {
+    fun generateToken(username: String, restaurantId: Long, role: String, customerId: Long? = null): String {
         logger.info("Generating access token for user: $username, expires in: $expirationTime ms")
-        return Jwts.builder()
+        val builder = Jwts.builder()
             .subject(username)
             .claim("restaurantId", restaurantId)
             .claim("role", role)
             .issuedAt(Date())
             .expiration(Date(System.currentTimeMillis() + expirationTime))
             .signWith(key)
-            .compact()
+            
+        if (customerId != null) {
+            builder.claim("customerId", customerId)
+        }
+            
+        return builder.compact()
     }
 
     fun generateRefreshToken(username: String): String {
@@ -83,5 +88,16 @@ class JwtUtil(
             .parseSignedClaims(token)
             .payload
             .get("role", String::class.java)
+    }
+
+    fun getCustomerIdFromToken(token: String): Long? {
+        val claims = Jwts.parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .payload
+        
+        val id = claims["customerId"] ?: return null
+        return if (id is Int) id.toLong() else id as Long
     }
 }
