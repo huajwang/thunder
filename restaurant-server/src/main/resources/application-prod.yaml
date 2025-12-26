@@ -9,5 +9,5 @@ oss:
   bucket-name: "yaojia-restaurant-prod"
 
 jwt:
-  expiration: 86400000 # 1 day
+  expiration: 1800000 # 30 minutes
   refresh-expiration: 2592000000 # 30 days
